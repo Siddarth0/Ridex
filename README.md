@@ -75,7 +75,7 @@ With modular architecture, socket-powered sync, and role-based workflows, Ridex 
 - GeoJSON fields for driver location data
 
 ---
-
+```
 ## 🗂️ Project Phases & Progress
 
 ### Phase 1: Authentication & Admin Controls *(✅ Completed)*
