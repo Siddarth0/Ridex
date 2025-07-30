@@ -1,5 +1,6 @@
 
-# ![Logo](./client/public/ridexlogo.png) Ridex
+# <img src="./client/public/ridexlogo.png" alt="Ridex Logo" width="36" style="border-radius: 50%; vertical-align: middle;"/> Ridex
+
 
 **Ridex** is a MERN-based ride-hailing and logistics platform for the web, inspired by real-world systems like Pathao. Built backend-first with modular APIs, WebSocket-based tracking, and role-based access, Ridex serves **customers**, **drivers**, and **admins** in real-time.
 
