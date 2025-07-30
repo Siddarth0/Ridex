@@ -1,160 +1,174 @@
-# 🛞 Ridex
 
-## 📚 Table of Contents
-- About
-- Features
-- Technology Stack
-- Project Phases & Progress
-- Getting Started
-- Contact
+🚦 Ridex
+Ridex is a MERN-based ride-hailing and logistics platform for the web, inspired by real-world systems like Pathao. Built backend-first with modular APIs, WebSocket-based tracking, and role-based access, Ridex serves customers, drivers, and admins in real-time.
 
----
+📚 Table of Contents
+About
 
-## 📖 About
+Features
 
-**Ridex** is a modern transportation and logistics platform built with the MERN stack, designed to streamline ride booking, driver coordination, and real-time trip management. Inspired by Nepal’s digital mobility landscape, Ridex bridges mobile-first experiences with a robust and responsive web application.
+Technology Stack
 
-With modular architecture, socket-powered sync, and role-based workflows, Ridex is built for expansion—from rides to deliveries to fleet management.
+Project Phases & Progress
 
----
+Getting Started
 
-## ✨ Features
+Contact
 
-### Core Features
+📖 About
+Ridex is designed to replicate the mobile-native experience of ride-hailing apps for the web using a real-time architecture. From authentication to booking and live location tracking, each module is built with reusability, scalability, and mobile integration in mind.
 
-- **Role-Based Access Control**  
-  Differentiated dashboards and actions for Admins, Drivers, and Users.
+✨ Features
+Role-Based Access: Admin, Driver, Customer
 
-- **User Management System**  
-  Admins can onboard users, assign roles, and control access rights.
+User & Vehicle Management
 
-- **Driver Profiles & Availability**  
-  Drivers can update availability, vehicle info, and receive ratings.
+Ride Request, Matching, and Booking
 
-- **Ride Booking Flow**  
-  Real-time ride requests, driver matching, trip tracking, and completion.
+Real-Time Driver Availability & Trip Status
 
-- **Live Tracking & Socket Integration**  
-  GeoJSON-powered driver location sync via Socket.IO.
+Trip History, Receipts, and Feedback
 
-- **Trip History & Receipt View**  
-  Drivers and users can access ride summaries and digital receipts.
+Admin Analytics Dashboard
 
-- **Admin Reporting Dashboard**  
-  Visual metrics on rides, activity, peak time usage, and more.
+Future-Ready Mobile APIs
 
-- **API-First Design**  
-  Clean REST architecture built for future mobile app integration.
+🧰 Technology Stack
+Layer	Tech
+Frontend	React, Tailwind, Redux Toolkit (optional), React Router
+Backend	Node.js, Express.js, Socket.IO, JWT, bcrypt
+Database	MongoDB, Mongoose, GeoJSON
+Real-time	WebSockets via Socket.IO
+Utilities	Multer, dotenv, CORS, morgan
 
----
+📈 Project Phases & Progress
+✅ Phase 1: Authentication & Admin Controls
+<details> <summary>Backend</summary>
+ Setup Express server and MongoDB connection
 
-## 🧰 Technology Stack
+ User model with roles: admin, driver, customer
 
-### Frontend
+ JWT-based authentication system
 
-- React.js  
-- Tailwind CSS  
-- React Router  
-- Axios  
-- Redux Toolkit *(optional)*  
-- Socket.IO Client
+ Password hashing (bcrypt)
 
-### Backend
+ Auth middleware
 
-- Node.js  
-- Express.js  
-- MongoDB with Mongoose  
-- Socket.IO  
-- JWT for authentication  
-- bcrypt.js for password hashing  
-- Multer *(for file uploads, optional)*
+ Role-based access control
 
-### Database
+ Admin-only routes for managing users
 
-- MongoDB  
-- GeoJSON fields for driver location data
+ Login activity logging
 
----
-<!--
+</details> <details> <summary>Frontend</summary>
+ Auth pages (register, login)
 
-## 🗂️ Project Phases & Progress
+ Token handling + Axios interceptor
 
-### Phase 1: Authentication & Admin Controls *(✅ Completed)*
+ Admin dashboard: user management table
 
-**Frontend:**
-- Login/Register components  
-- Admin Dashboard with user role assignment  
-- Redux setup for global auth
+ Protected route guards
 
-**Backend:**
-- JWT-based Auth APIs  
-- Secure password hashing with bcrypt  
-- Role-based middleware  
-- Admin endpoints for user CRUD and role management
+ Global state (Redux Toolkit or Context API)
 
----
+</details>
+🚧 Phase 2: Driver Module & Ride Booking
+<details> <summary>Backend</summary>
+ Driver schema: profile, vehicle, availability
 
-### Phase 2: Driver Module & Booking System *(🚧 In Progress)*
+ Driver status toggle endpoint
 
-**Frontend:**
-- Driver Dashboard  
-- Availability toggles  
-- Booking interface  
-- Trip History components
+ Ride schema with lifecycle status
 
-**Backend:**
-- Driver schema with GeoJSON location tracking  
-- Ride Request endpoints  
-- Real-time match logic using Socket.IO  
-- APIs for trip lifecycle
+ Matching logic (nearby driver selection)
 
----
+ Real-time status updates via Socket.IO
 
-### Phase 3: User Experience & Booking Interface *(🕓 Planned)*
+ Trip history & ratings model
 
-**Frontend:**
-- Ride Request form  
-- Map interface showing nearby drivers  
-- Booking history dashboard  
-- Receipt and rating views
+</details> <details> <summary>Frontend</summary>
+ Driver dashboard UI
 
-**Backend:**
-- Bookings CRUD  
-- Location-based driver search  
-- Trip receipts & feedback routes
+ Vehicle profile form
 
----
+ Live ride request view
 
-### Phase 4: Analytics, Optimization, & Mobile API Support *(🔮 Upcoming)*
+ Trip history page
 
-**Frontend:**
-- Admin visual analytics (charts, graphs)  
-- Notification system integration  
-- UX polish for mobile experience
+ WebSocket-based updates
 
-**Backend:**
-- Advanced reporting endpoints  
-- Performance tuning  
-- Auth-protected mobile-compatible APIs
+</details>
+🔜 Phase 3: Customer Booking & Tracking
+<details> <summary>Backend</summary>
+ Booking creation endpoint
 
----
+ Driver discovery via geolocation (GeoJSON)
 
-## ⚙️ Getting Started
+ Booking lifecycle & updates
 
-### Prerequisites
+ Receipt & fare breakdown
 
-- Node.js (v18+ recommended)  
-- MongoDB (local or Atlas)  
-- Postman for API testing  
-- Git
+ Feedback + rating system
 
----
+</details> <details> <summary>Frontend</summary>
+ Request Ride form
 
-### Installation
+ Live driver map with markers
 
-**Clone the repository**
+ Real-time ride tracking
 
-```bash
+ Payment UI + Trip summary
+
+ Feedback & ratings submission
+
+</details>
+🧪 Phase 4: Admin Analytics & Mobile Prep
+<details> <summary>Backend</summary>
+ Aggregated stats (total trips, revenue, activity)
+
+ Reports + logs endpoints
+
+ FCM token storage for push notifications
+
+ Redis or similar for caching popular queries
+
+</details> <details> <summary>Frontend</summary>
+ Analytics dashboards for admin
+
+ Notification UI & framework
+
+ Mobile responsiveness and testing
+
+</details>
+⚙️ Getting Started
+Prerequisites
+Node.js (v18+)
+
+MongoDB (local or Atlas)
+
+Postman or Insomnia
+
+Installation
+bash
+Copy
+Edit
+# Clone project
 git clone https://github.com/your-username/ridex
 cd ridex
--->
+
+# Install backend
+cd backend
+npm install
+npm run dev
+
+# Install frontend
+cd ../frontend
+npm install
+npm start
+
+📬 Contact
+🧑‍💻 Lead Developer: Siddartha Kunwar
+
+📧 Email: siddartha.kunwar1@gmail.com
+
+🌐 GitHub: github.com/siddarth0
