@@ -30,7 +30,7 @@ export default function LoginPage() {
     onSubmit: async (values, { setSubmitting }) => {
       setLoading(true)
       try {
-        const res = await axios.post("http://localhost:8080/login", values)
+        const res = await axios.post("http://localhost:8000/login", values)
         localStorage.setItem("token", res.data.token)
         toast.success("✅ Login successful! Redirecting...")
         setTimeout(() => {
@@ -77,6 +77,25 @@ export default function LoginPage() {
           </div>
 
           <div className="relative z-10 flex flex-col justify-center px-12 py-16 text-white">
+            {/* Logo */}
+            <div className="mb-8">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-1">
+                  <Image
+                    src="/ridexlogo.png"
+                    alt="RideX Logo"
+                    width={40}
+                    height={40}
+                    className="object-contain"
+                    priority
+                  />
+                </div>
+                <h1 className="text-3xl font-bold">RideX</h1>
+              </div>
+              <p className="text-emerald-100 text-lg">Welcome back to your journey</p>
+            </div>
+
+            {/* Main Content */}
             <div className="mb-12">
               <h2 className="text-4xl font-bold mb-6 leading-tight">
                 Ready to

@@ -10,9 +10,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Car, Users, Shield, Star, ArrowRight, CheckCircle, Zap } from "lucide-react"
+import { Car, ArrowRight, CheckCircle, Shield, DollarSign, Clock } from "lucide-react"
 
-export default function RegisterPage() {
+export default function DriverRegisterPage() {
   const [loading, setLoading] = useState(false)
 
   const validationSchema = Yup.object({
@@ -22,6 +22,13 @@ export default function RegisterPage() {
       .matches(/^\d{10}$/, "Phone number must be 10 digits")
       .required("Phone Number is required"),
     email: Yup.string().email("Invalid email address").required("Email is required"),
+    licenseNumber: Yup.string().required("Driver's License Number is required"),
+    vehicleYear: Yup.number()
+      .min(2010, "Vehicle must be 2010 or newer")
+      .max(new Date().getFullYear(), "Invalid year")
+      .required("Vehicle year is required"),
+    vehicleMake: Yup.string().required("Vehicle make is required"),
+    vehicleModel: Yup.string().required("Vehicle model is required"),
     password: Yup.string().min(6, "Password must be at least 6 characters").required("Password is required"),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password")], "Passwords must match")
@@ -34,6 +41,10 @@ export default function RegisterPage() {
       lastName: "",
       phoneNumber: "",
       email: "",
+      licenseNumber: "",
+      vehicleYear: "",
+      vehicleMake: "",
+      vehicleModel: "",
       password: "",
       confirmPassword: "",
     },
@@ -41,8 +52,8 @@ export default function RegisterPage() {
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       setLoading(true)
       try {
-        await axios.post("http://localhost:8000/register", values)
-        toast.success("🎉 Registration successful! Please log in.")
+        await axios.post("http://localhost:8000/driver/register", values)
+        toast.success("🎉 Driver application submitted! We'll review and get back to you.")
         resetForm()
       } catch (error: any) {
         toast.error(error.response?.data?.message || "Registration failed. Try again.")
@@ -53,30 +64,11 @@ export default function RegisterPage() {
     },
   })
 
-  const features = [
-    {
-      icon: <Car className="w-5 h-5" />,
-      title: "Reliable Rides",
-      description: "Get where you need to go, when you need to be there",
-    },
-    {
-      icon: <Users className="w-5 h-5" />,
-      title: "Trusted Community",
-      description: "Join thousands of verified riders and drivers",
-    },
-    {
-      icon: <Shield className="w-5 h-5" />,
-      title: "Safe & Secure",
-      description: "Your safety is our top priority with 24/7 support",
-    },
-  ]
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="flex min-h-screen">
-        {/* Left Side - Hero Section */}
+        {/* Left Side - Driver Benefits */}
         <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 relative overflow-hidden">
-          {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-20 left-20 w-32 h-32 bg-white rounded-full"></div>
             <div className="absolute top-40 right-32 w-24 h-24 bg-white rounded-full"></div>
@@ -85,7 +77,6 @@ export default function RegisterPage() {
           </div>
 
           <div className="relative z-10 flex flex-col justify-center px-12 py-16 text-white">
-            {/* Logo */}
             <div className="mb-8">
               <div className="flex items-center space-x-3 mb-4">
                 <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-1">
@@ -98,54 +89,67 @@ export default function RegisterPage() {
                     priority
                   />
                 </div>
-                <h1 className="text-3xl font-bold">RideX</h1>
+                <h1 className="text-3xl font-bold">RideX Driver</h1>
               </div>
-              <p className="text-emerald-100 text-lg">Your journey starts here</p>
+              <p className="text-emerald-100 text-lg">Start earning today</p>
             </div>
 
-            {/* Main Content */}
             <div className="mb-12">
               <h2 className="text-4xl font-bold mb-6 leading-tight">
-                Join the Future of
-                <span className="block text-emerald-200">Ride Sharing</span>
+                Turn Your Car Into
+                <span className="block text-emerald-200">Your Business</span>
               </h2>
               <p className="text-xl text-emerald-100 mb-8 leading-relaxed">
-                Connect with trusted drivers, enjoy safe rides, and be part of a community that's changing how we move
-                around the city.
+                Join thousands of drivers earning flexible income with RideX. Set your own schedule, keep 85% of your
+                earnings, and drive when you want.
               </p>
             </div>
 
-            {/* Features */}
             <div className="space-y-6">
-              {features.map((feature, index) => (
+              {[
+                {
+                  icon: <DollarSign className="w-5 h-5" />,
+                  title: "Earn More",
+                  description: "Keep 85% of your earnings with weekly payouts",
+                },
+                {
+                  icon: <Clock className="w-5 h-5" />,
+                  title: "Flexible Schedule",
+                  description: "Drive when you want, as much as you want",
+                },
+                {
+                  icon: <Shield className="w-5 h-5" />,
+                  title: "Full Support",
+                  description: "24/7 driver support and comprehensive insurance",
+                },
+              ].map((benefit, index) => (
                 <div key={index} className="flex items-start space-x-4">
                   <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                    {feature.icon}
+                    {benefit.icon}
                   </div>
                   <div>
-                    <h3 className="font-semibold text-lg mb-1">{feature.title}</h3>
-                    <p className="text-emerald-100 text-sm">{feature.description}</p>
+                    <h3 className="font-semibold text-lg mb-1">{benefit.title}</h3>
+                    <p className="text-emerald-100 text-sm">{benefit.description}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Stats */}
-            <div className="mt-12 grid grid-cols-3 gap-8">
-              <div className="text-center">
-                <div className="text-2xl font-bold mb-1">50K+</div>
-                <div className="text-emerald-200 text-sm">Happy Riders</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold mb-1">10K+</div>
-                <div className="text-emerald-200 text-sm">Trusted Drivers</div>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center mb-1">
-                  <span className="text-2xl font-bold">4.9</span>
-                  <Star className="w-5 h-5 ml-1 fill-current" />
+            <div className="mt-12 bg-emerald-500/20 rounded-lg p-6">
+              <h3 className="font-semibold text-lg mb-4">Driver Earnings</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-emerald-100">Average per hour</span>
+                  <span className="font-bold">$25-35</span>
                 </div>
-                <div className="text-emerald-200 text-sm">Average Rating</div>
+                <div className="flex items-center justify-between">
+                  <span className="text-emerald-100">Top drivers monthly</span>
+                  <span className="font-bold">$4,000+</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-emerald-100">You keep</span>
+                  <span className="font-bold">85%</span>
+                </div>
               </div>
             </div>
           </div>
@@ -154,10 +158,9 @@ export default function RegisterPage() {
         {/* Right Side - Registration Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
           <div className="w-full max-w-md space-y-8">
-            {/* Mobile Logo */}
             <div className="lg:hidden text-center">
               <div className="flex items-center justify-center space-x-3 mb-4">
-                <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-2 shadow-lg">
+                <div className="w-16 h-16 bg-emerald-600 rounded-xl flex items-center justify-center p-2 shadow-lg">
                   <Image
                     src="/ridexlogo.png"
                     alt="RideX Logo"
@@ -167,139 +170,174 @@ export default function RegisterPage() {
                     priority
                   />
                 </div>
-                <h1 className="text-3xl font-bold text-gray-900">RideX</h1>
+                <h1 className="text-3xl font-bold text-gray-900">RideX Driver</h1>
               </div>
-              <p className="text-gray-600">Your journey starts here</p>
+              <p className="text-gray-600">Start earning today</p>
             </div>
 
-            {/* Registration Form - No Card wrapper since Layout provides it */}
             <div className="space-y-6">
-              {/* Header */}
               <div className="text-center pb-6">
                 <div className="flex justify-center mb-4">
-                  <Image
-                    src="/ridexlogo.png"
-                    alt="RideX Logo"
-                    width={80}
-                    height={80}
-                    className="object-contain drop-shadow-md"
-                    priority
-                  />
+                  <div className="w-16 h-16 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                    <Car className="w-8 h-8 text-white" />
+                  </div>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Join RideX</h2>
-                <p className="text-gray-600">Ride with ease. Create your account to start your journey.</p>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Become a RideX Driver</h2>
+                <p className="text-gray-600">Fill out your application to start earning</p>
               </div>
 
               <form onSubmit={formik.handleSubmit} className="space-y-6">
-                {/* Name Fields */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName" className="text-sm font-medium text-gray-700">
-                      First Name
-                    </Label>
+                    <Label htmlFor="firstName">First Name</Label>
                     <Input
                       id="firstName"
                       type="text"
                       placeholder="John"
-                      className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                      className="h-12"
                       {...formik.getFieldProps("firstName")}
                     />
                     {formik.touched.firstName && formik.errors.firstName && (
-                      <p className="text-red-500 text-xs mt-1">{formik.errors.firstName}</p>
+                      <p className="text-red-500 text-xs">{formik.errors.firstName}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lastName" className="text-sm font-medium text-gray-700">
-                      Last Name
-                    </Label>
+                    <Label htmlFor="lastName">Last Name</Label>
                     <Input
                       id="lastName"
                       type="text"
                       placeholder="Doe"
-                      className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                      className="h-12"
                       {...formik.getFieldProps("lastName")}
                     />
                     {formik.touched.lastName && formik.errors.lastName && (
-                      <p className="text-red-500 text-xs mt-1">{formik.errors.lastName}</p>
+                      <p className="text-red-500 text-xs">{formik.errors.lastName}</p>
                     )}
                   </div>
                 </div>
 
-                {/* Email */}
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                    Email Address
-                  </Label>
+                  <Label htmlFor="email">Email Address</Label>
                   <Input
                     id="email"
                     type="email"
                     placeholder="you@example.com"
-                    className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                    className="h-12"
                     {...formik.getFieldProps("email")}
                   />
                   {formik.touched.email && formik.errors.email && (
-                    <p className="text-red-500 text-xs mt-1">{formik.errors.email}</p>
+                    <p className="text-red-500 text-xs">{formik.errors.email}</p>
                   )}
                 </div>
 
-                {/* Phone */}
                 <div className="space-y-2">
-                  <Label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">
-                    Phone Number
-                  </Label>
+                  <Label htmlFor="phoneNumber">Phone Number</Label>
                   <Input
                     id="phoneNumber"
                     type="tel"
                     placeholder="9800000000"
-                    className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                    className="h-12"
                     {...formik.getFieldProps("phoneNumber")}
                   />
                   {formik.touched.phoneNumber && formik.errors.phoneNumber && (
-                    <p className="text-red-500 text-xs mt-1">{formik.errors.phoneNumber}</p>
+                    <p className="text-red-500 text-xs">{formik.errors.phoneNumber}</p>
                   )}
                 </div>
 
-                {/* Password Fields */}
+                <div className="space-y-2">
+                  <Label htmlFor="licenseNumber">Driver's License Number</Label>
+                  <Input
+                    id="licenseNumber"
+                    type="text"
+                    placeholder="DL123456789"
+                    className="h-12"
+                    {...formik.getFieldProps("licenseNumber")}
+                  />
+                  {formik.touched.licenseNumber && formik.errors.licenseNumber && (
+                    <p className="text-red-500 text-xs">{formik.errors.licenseNumber}</p>
+                  )}
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-gray-900">Vehicle Information</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="vehicleYear">Year</Label>
+                      <Input
+                        id="vehicleYear"
+                        type="number"
+                        placeholder="2020"
+                        className="h-12"
+                        {...formik.getFieldProps("vehicleYear")}
+                      />
+                      {formik.touched.vehicleYear && formik.errors.vehicleYear && (
+                        <p className="text-red-500 text-xs">{formik.errors.vehicleYear}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="vehicleMake">Make</Label>
+                      <Input
+                        id="vehicleMake"
+                        type="text"
+                        placeholder="Toyota"
+                        className="h-12"
+                        {...formik.getFieldProps("vehicleMake")}
+                      />
+                      {formik.touched.vehicleMake && formik.errors.vehicleMake && (
+                        <p className="text-red-500 text-xs">{formik.errors.vehicleMake}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="vehicleModel">Model</Label>
+                    <Input
+                      id="vehicleModel"
+                      type="text"
+                      placeholder="Camry"
+                      className="h-12"
+                      {...formik.getFieldProps("vehicleModel")}
+                    />
+                    {formik.touched.vehicleModel && formik.errors.vehicleModel && (
+                      <p className="text-red-500 text-xs">{formik.errors.vehicleModel}</p>
+                    )}
+                  </div>
+                </div>
+
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                      Password
-                    </Label>
+                    <Label htmlFor="password">Password</Label>
                     <Input
                       id="password"
                       type="password"
                       placeholder="••••••••"
-                      className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                      className="h-12"
                       {...formik.getFieldProps("password")}
                     />
                     {formik.touched.password && formik.errors.password && (
-                      <p className="text-red-500 text-xs mt-1">{formik.errors.password}</p>
+                      <p className="text-red-500 text-xs">{formik.errors.password}</p>
                     )}
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">
-                      Confirm Password
-                    </Label>
+                    <Label htmlFor="confirmPassword">Confirm Password</Label>
                     <Input
                       id="confirmPassword"
                       type="password"
                       placeholder="••••••••"
-                      className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                      className="h-12"
                       {...formik.getFieldProps("confirmPassword")}
                     />
                     {formik.touched.confirmPassword && formik.errors.confirmPassword && (
-                      <p className="text-red-500 text-xs mt-1">{formik.errors.confirmPassword}</p>
+                      <p className="text-red-500 text-xs">{formik.errors.confirmPassword}</p>
                     )}
                   </div>
                 </div>
 
-                {/* Terms */}
                 <div className="flex items-start space-x-3 text-sm text-gray-600 bg-gray-50 p-4 rounded-lg">
                   <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
                   <p>
-                    By creating an account, you agree to our{" "}
-                    <Link href="/terms" className="text-emerald-600 hover:text-emerald-700 underline">
-                      Terms of Service
+                    By applying, you agree to our{" "}
+                    <Link href="/driver/terms" className="text-emerald-600 hover:text-emerald-700 underline">
+                      Driver Terms
                     </Link>{" "}
                     and{" "}
                     <Link href="/privacy" className="text-emerald-600 hover:text-emerald-700 underline">
@@ -308,52 +346,46 @@ export default function RegisterPage() {
                   </p>
                 </div>
 
-                {/* Submit Button */}
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
                   disabled={formik.isSubmitting || loading}
                 >
                   {formik.isSubmitting || loading ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Creating Account...</span>
+                      <span>Submitting Application...</span>
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">
-                      <span>Create Account</span>
+                      <span>Submit Application</span>
                       <ArrowRight className="w-4 h-4" />
                     </div>
                   )}
                 </Button>
               </form>
 
-              {/* Sign In Link */}
               <div className="text-center pt-4 border-t border-gray-100">
                 <p className="text-gray-600">
-                  Already have an account?{" "}
-                  <Link href="/login" className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
-                    Sign in instead
+                  Already a driver?{" "}
+                  <Link href="/driver/login" className="text-emerald-600 hover:text-emerald-700 font-medium">
+                    Sign in here
                   </Link>
                 </p>
               </div>
 
-              {/* Trust Indicators */}
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="text-center">
-                  <p className="text-xs text-gray-500 mb-4">Trusted by riders worldwide</p>
+                  <p className="text-xs text-gray-500 mb-4">Next steps after application</p>
                   <div className="flex items-center justify-center space-x-4">
-                    <Badge variant="secondary" className="bg-green-100 text-green-700 hover:bg-green-100">
-                      <Shield className="w-3 h-3 mr-1" />
-                      SSL Secured
+                    <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                      Background Check
                     </Badge>
-                    <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-100">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      Verified Platform
+                    <Badge variant="secondary" className="bg-green-100 text-green-700">
+                      Vehicle Inspection
                     </Badge>
-                    <Badge variant="secondary" className="bg-purple-100 text-purple-700 hover:bg-purple-100">
-                      <Zap className="w-3 h-3 mr-1" />
-                      Fast Setup
+                    <Badge variant="secondary" className="bg-purple-100 text-purple-700">
+                      Start Driving
                     </Badge>
                   </div>
                 </div>

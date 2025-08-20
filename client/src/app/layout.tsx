@@ -1,19 +1,26 @@
-import './globals.css';
-import type { Metadata } from 'next';
-import { Toaster } from 'sonner';
+import type React from "react"
+import { Inter } from "next/font/google"
+import "./globals.css"
+import { Toaster } from "sonner"
 
-export const metadata: Metadata = {
-  title: 'Ridex',
-  description: 'Ride booking platform',
-};
+const inter = Inter({ subsets: ["latin"] })
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export const metadata = {
+  title: "RideX - Your Journey Starts Here",
+  description: "Join the future of ride sharing with RideX. Safe, reliable, and trusted by thousands.",
+}
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="en">
-      <body className="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+      <body className={inter.className}>
         {children}
         <Toaster position="top-right" richColors />
       </body>
     </html>
-  );
+  )
 }
