@@ -54,22 +54,22 @@ Ridex is designed to replicate the mobile-native experience of ride-hailing apps
 <details>
 <summary>Backend</summary>
 
-- [x] Setup Express server and MongoDB connection  
-- [x] User model with roles: `admin`, `driver`, `customer`  
+- [✅] Setup Express server and MongoDB connection  
+- [✅] User model with roles: `admin`, `driver`, `customer`  
 - [x] JWT-based authentication system  
 - [x] Password hashing (bcrypt)  
 - [x] Auth middleware  
 - [x] Role-based access control  
-- [x] Admin-only routes for managing users  
+- [] Admin-only routes for managing users  
 - [x] Login activity logging  
 </details>
 
 <details>
 <summary>Frontend</summary>
 
-- [x] Auth pages (register, login)  
+- [✅] Auth pages (register, login)  
 - [x] Token handling + Axios interceptor  
-- [x] Admin dashboard: user management table  
+- [✅] Admin dashboard: user management table  
 - [x] Protected route guards  
 - [x] Global state (Redux Toolkit or Context API)  
 </details>
