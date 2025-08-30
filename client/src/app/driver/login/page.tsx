@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useFormik } from "formik"
 import * as Yup from "yup"
 import { useState } from "react"
-import axios from "axios"
+import api from "@/lib/api"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,7 +30,7 @@ export default function DriverLoginPage() {
     onSubmit: async (values, { setSubmitting }) => {
       setLoading(true)
       try {
-        const res = await axios.post("http://localhost:8000/driver/login", values)
+  const res = await api.post("/auth/login", values)
         localStorage.setItem("driverToken", res.data.token)
         toast.success("✅ Welcome back! Redirecting to driver dashboard...")
         setTimeout(() => {

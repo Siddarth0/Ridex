@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useFormik } from "formik"
 import * as Yup from "yup"
 import { useState } from "react"
-import axios from "axios"
+import api from "@/lib/api"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -52,7 +52,25 @@ export default function DriverRegisterPage() {
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       setLoading(true)
       try {
-        await axios.post("http://localhost:8000/driver/register", values)
+        await api.post("/auth/driver/register", {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          phone: values.phoneNumber,
+          email: values.email,
+          password: values.password,
+          dateOfBirth: new Date().toISOString().slice(0, 10),
+          licenseNumber: values.licenseNumber,
+          licenseExpiry: new Date(new Date().getFullYear() + 1, 0, 1).toISOString().slice(0, 10),
+          vehicle: {
+            year: Number(values.vehicleYear),
+            make: values.vehicleMake,
+            model: values.vehicleModel,
+            color: "Black",
+            plateNumber: "TEMP-0001",
+            type: "sedan",
+            capacity: 4,
+          },
+        })
         toast.success("🎉 Driver application submitted! We'll review and get back to you.")
         resetForm()
       } catch (error: any) {
