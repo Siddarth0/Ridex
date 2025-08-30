@@ -1,10 +1,11 @@
 "use client"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { useFormik } from "formik"
 import * as Yup from "yup"
 import { useState } from "react"
-import axios from "axios"
+import api from "@/lib/api"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,6 +15,7 @@ import { Car, Users, Shield, Star, ArrowRight, CheckCircle, Zap } from "lucide-r
 
 export default function RegisterPage() {
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   const validationSchema = Yup.object({
     firstName: Yup.string().required("First Name is required"),
@@ -41,9 +43,23 @@ export default function RegisterPage() {
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       setLoading(true)
       try {
-        await axios.post("http://localhost:8000/register", values)
+        const res = await api.post("/auth/register", {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          phone: values.phoneNumber,
+          email: values.email,
+          password: values.password,
+          dateOfBirth: new Date().toISOString().slice(0, 10),
+        })
         toast.success("🎉 Registration successful! Please log in.")
         resetForm()
+        // Persist token to allow optional resend from verify page
+        const token = res?.data?.data?.token
+        if (token) {
+          try { localStorage.setItem("token", token) } catch {}
+        }
+        // Navigate to verification guidance page
+        router.push(`/verify-email?email=${encodeURIComponent(values.email)}`)
       } catch (error: any) {
         toast.error(error.response?.data?.message || "Registration failed. Try again.")
       } finally {
