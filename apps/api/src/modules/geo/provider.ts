@@ -92,13 +92,17 @@ class OsmGeoProvider implements GeoProvider {
     const [fromLng, fromLat] = from;
     const [toLng, toLat] = to;
     try {
-      // OSRM demo server: fine for dev and launch traffic; self-host when quota hurts
+      // OSRM's driving profile optimizes for travel time, so its top route can
+      // be longer in distance than necessary. Ask for alternatives and pick the
+      // shortest by distance — the fare is distance-led, so this is the fair
+      // (cheapest reasonable) route for the rider. OSRM demo server: fine for
+      // dev and launch traffic; self-host when quota hurts.
       const url =
         `${env.OSRM_URL}/route/v1/driving/${fromLng},${fromLat};${toLng},${toLat}` +
-        `?overview=full&geometries=polyline`;
+        `?overview=full&geometries=polyline&alternatives=3`;
       const data = (await fetchJson(url)) as OsrmResponse;
-      const route = data.routes?.[0];
-      if (data.code !== "Ok" || !route) throw new Error(`OSRM code ${data.code}`);
+      if (data.code !== "Ok" || !data.routes?.length) throw new Error(`OSRM code ${data.code}`);
+      const route = data.routes.reduce((best, r) => (r.distance < best.distance ? r : best));
       return {
         distanceM: Math.round(route.distance),
         durationS: Math.round(route.duration),
