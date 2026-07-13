@@ -1,4 +1,3 @@
-import type { Server as HttpServer } from "node:http";
 import { Server, type Socket } from "socket.io";
 import { and, eq, inArray } from "drizzle-orm";
 import type { UserRole } from "@ridex/shared";
@@ -36,8 +35,15 @@ function tokenFromHandshake(socket: Socket): string | null {
 /** Minimum gap between accepted location pings per driver. */
 const LOCATION_THROTTLE_MS = 2_000;
 
-export function createSocketServer(httpServer: HttpServer, db: Db): Server {
-  const io = new Server(httpServer, {
+/**
+ * Build the Socket.IO server WITHOUT attaching it to an http server yet.
+ * The caller must `io.attach(server)` after Express is the server's base
+ * request handler, so engine.io captures Express and delegates non-socket.io
+ * requests to it. Attaching before Express is wired leaves Express as a second
+ * `request` listener, and every /socket.io/ handshake also hits Express's 404.
+ */
+export function createSocketServer(db: Db): Server {
+  const io = new Server({
     cors: {
       origin: [env.FRONTEND_URL, "http://localhost:3000"],
       credentials: true,

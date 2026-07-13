@@ -15,13 +15,15 @@ const db = createDb(env.DATABASE_URL!);
 const storage = createStorage();
 const geo = createGeoProvider();
 
-// The socket server must exist before the app (the notifier wraps io),
-// so create the bare http server first and attach the express app after.
-const server = createServer();
-const io = createSocketServer(server, db);
+// The notifier wraps io, and the app needs the notifier — so build io first
+// (unattached), then the app, then make the app the http server's base request
+// handler, and only then attach io. This ordering is what lets Socket.IO
+// intercept /socket.io/ requests and hand everything else to Express.
+const io = createSocketServer(db);
 const notifier = createSocketNotifier(io);
 const app = createApp({ db, storage, geo, notifier });
-server.on("request", app);
+const server = createServer(app);
+io.attach(server);
 
 const dispatcher = createDispatcher(db, notifier);
 dispatcher.start();
