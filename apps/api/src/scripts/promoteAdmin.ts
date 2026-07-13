@@ -1,6 +1,11 @@
 /** Promote an existing user to admin (also marks email verified so they can log in):
  *    pnpm --filter api promote-admin you@example.com
  */
+try {
+  process.loadEnvFile();
+} catch {
+  /* no .env file */
+}
 import { eq } from "drizzle-orm";
 import { createDb } from "../db/index.js";
 import { users } from "../db/schema/index.js";

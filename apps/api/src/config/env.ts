@@ -1,5 +1,15 @@
 import { z } from "zod";
 
+// Load apps/api/.env when present (dev); production injects real env vars.
+// Never under vitest — tests must run on their own env, not real credentials.
+if (!process.env.VITEST) {
+  try {
+    process.loadEnvFile();
+  } catch {
+    /* no .env file */
+  }
+}
+
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   PORT: z.coerce.number().int().positive().default(8000),

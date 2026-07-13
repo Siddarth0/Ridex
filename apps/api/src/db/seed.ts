@@ -1,4 +1,9 @@
 /** Idempotent seed: default fare configs per ride type. Run with `pnpm --filter api seed`. */
+try {
+  process.loadEnvFile();
+} catch {
+  /* no .env file */
+}
 import { createDb } from "./index.js";
 import { fareConfigs } from "./schema/index.js";
 import { RIDE_TYPES } from "@ridex/shared";
