@@ -119,7 +119,9 @@ function LocationField({
         }
       />
       {open && suggestions.length > 0 && (
-        <div className="absolute z-20 mt-1 w-full bg-white rounded-md border shadow-lg max-h-56 overflow-auto">
+        // Opens upward: the panel sits at the bottom of the screen, so a
+        // downward dropdown would be clipped by the viewport edge.
+        <div className="absolute bottom-full mb-1 z-20 w-full bg-white rounded-md border shadow-lg max-h-56 overflow-auto">
           {suggestions.map((s, i) => (
             <button
               key={i}
@@ -404,8 +406,9 @@ export default function BookRidePage() {
         )}
       </div>
 
-      {/* Bottom panel */}
-      <div className="absolute bottom-0 left-0 right-0 z-10 p-4 md:max-w-md md:left-4 md:right-auto md:w-96">
+      {/* Bottom panel — lifted off the very bottom edge so the search
+          dropdown and content stay clear of the browser chrome */}
+      <div className="absolute bottom-4 left-0 right-0 z-10 px-4 md:max-w-md md:left-4 md:right-auto md:w-96">
         <Card className="shadow-2xl border-0">
           <CardContent className="p-4 space-y-3">
             {!showRide && (

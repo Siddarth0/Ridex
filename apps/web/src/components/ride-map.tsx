@@ -162,13 +162,21 @@ export function RideMap({
     }
   }, [pickup, destination])
 
-  // Route line
+  // Route line. Prefer the real routed polyline; if routing degraded to no
+  // polyline but we have both endpoints, fall back to a straight line so the
+  // rider always sees a connection. Re-runs whenever any of these change.
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
     const apply = () => {
-      const existing = map.getSource("route")
-      if (!routePolyline) {
+      const coordinates = routePolyline
+        ? decodePolyline(routePolyline)
+        : pickup && destination
+          ? [pickup, destination]
+          : null
+
+      const existing = map.getSource("route") as maplibregl.GeoJSONSource | undefined
+      if (!coordinates) {
         if (existing) {
           map.removeLayer("route-line")
           map.removeSource("route")
@@ -178,23 +186,32 @@ export function RideMap({
       const geojson = {
         type: "Feature" as const,
         properties: {},
-        geometry: { type: "LineString" as const, coordinates: decodePolyline(routePolyline) },
+        geometry: { type: "LineString" as const, coordinates },
       }
+      // Solid for a real route, dashed for the straight-line fallback
+      const dash = routePolyline ? undefined : [2, 1.5]
       if (existing) {
-        ;(existing as maplibregl.GeoJSONSource).setData(geojson)
+        existing.setData(geojson)
+        map.setPaintProperty("route-line", "line-dasharray", dash)
       } else {
         map.addSource("route", { type: "geojson", data: geojson })
         map.addLayer({
           id: "route-line",
           type: "line",
           source: "route",
-          paint: { "line-color": "#0d9488", "line-width": 4.5, "line-opacity": 0.85 },
+          layout: { "line-cap": "round", "line-join": "round" },
+          paint: {
+            "line-color": "#0d9488",
+            "line-width": 4.5,
+            "line-opacity": 0.85,
+            ...(dash ? { "line-dasharray": dash } : {}),
+          },
         })
       }
     }
     if (map.isStyleLoaded()) apply()
     else map.once("load", apply)
-  }, [routePolyline])
+  }, [routePolyline, pickup, destination])
 
   // Live driver marker
   useEffect(() => {
