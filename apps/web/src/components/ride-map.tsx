@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import maplibregl, { Map as MlMap, Marker } from "maplibre-gl"
 import "maplibre-gl/dist/maplibre-gl.css"
 import { decodePolyline } from "@/lib/polyline"
@@ -19,6 +19,8 @@ export interface RideMapProps {
   placing?: "pickup" | "destination" | null
   routePolyline?: string | null
   driverPosition?: [number, number] | null
+  /** Where to center the map before any pins exist (e.g. the user's GPS). */
+  focus?: [number, number] | null
   className?: string
 }
 
@@ -43,6 +45,7 @@ export function RideMap({
   placing = null,
   routePolyline,
   driverPosition,
+  focus,
   className,
 }: RideMapProps) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -52,6 +55,9 @@ export function RideMap({
   const driverMarker = useRef<Marker | null>(null)
   const placingRef = useRef(placing)
   const onPlaceRef = useRef(onPlace)
+  const hasFocusedRef = useRef(false)
+  const [failed, setFailed] = useState<string | null>(null)
+
   useEffect(() => {
     placingRef.current = placing
     onPlaceRef.current = onPlace
@@ -60,13 +66,34 @@ export function RideMap({
   // Map lifecycle
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
-    const map = new maplibregl.Map({
-      container: containerRef.current,
-      style: MAP_STYLE,
-      center: KATHMANDU,
-      zoom: 13,
-      attributionControl: { compact: true },
+
+    let map: MlMap
+    try {
+      map = new maplibregl.Map({
+        container: containerRef.current,
+        style: MAP_STYLE,
+        center: KATHMANDU,
+        zoom: 13,
+        attributionControl: { compact: true },
+      })
+    } catch (err) {
+      // WebGL unavailable/disabled throws synchronously here
+      console.error("Map failed to initialize:", err)
+      queueMicrotask(() => setFailed("Your browser could not start the map (WebGL may be disabled)."))
+      return
+    }
+
+    // Surface load/tile/style failures instead of showing a blank canvas
+    map.on("error", (e) => {
+      console.error("Map error:", e.error ?? e)
     })
+    // The container is often measured before layout settles; force a resize
+    // once the style is ready so the canvas fills its box.
+    map.on("load", () => {
+      map.resize()
+      setFailed(null)
+    })
+
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "bottom-right")
     map.on("click", (e) => {
       const mode = placingRef.current
@@ -80,6 +107,22 @@ export function RideMap({
       mapRef.current = null
     }
   }, [])
+
+  // Keep the canvas sized to its container even if the box changes after init
+  useEffect(() => {
+    if (!containerRef.current) return
+    const observer = new ResizeObserver(() => mapRef.current?.resize())
+    observer.observe(containerRef.current)
+    return () => observer.disconnect()
+  }, [])
+
+  // Recenter on an external focus point (the rider's GPS) until they pick a pin
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !focus || hasFocusedRef.current || pickup) return
+    hasFocusedRef.current = true
+    map.easeTo({ center: focus, zoom: 15 })
+  }, [focus, pickup])
 
   // Pickup / destination pins
   useEffect(() => {
@@ -171,5 +214,14 @@ export function RideMap({
     }
   }, [driverPosition])
 
-  return <div ref={containerRef} className={className ?? "h-full w-full"} />
+  return (
+    <div className={className ?? "h-full w-full"}>
+      <div ref={containerRef} className="h-full w-full" />
+      {failed && (
+        <div className="absolute inset-0 flex items-center justify-center bg-gray-100 p-6 text-center">
+          <p className="text-sm text-gray-600">{failed}</p>
+        </div>
+      )}
+    </div>
+  )
 }

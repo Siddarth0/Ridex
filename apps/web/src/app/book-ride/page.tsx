@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { ArrowLeft, Bike, Car, Crown, LoaderCircle, MapPin, Phone, Star, X } from "lucide-react"
+import { ArrowLeft, Bike, Car, Crown, LoaderCircle, LocateFixed, MapPin, Phone, Star, X } from "lucide-react"
 
 type Coords = [number, number]
 interface Place {
@@ -159,6 +159,8 @@ export default function BookRidePage() {
   const [ride, setRide] = useState<RideDetail | null>(null)
   const [driverPos, setDriverPos] = useState<Coords | null>(null)
   const [ratingScore, setRatingScore] = useState(0)
+  const [gpsFocus, setGpsFocus] = useState<Coords | null>(null)
+  const [locating, setLocating] = useState(false)
   const rideRef = useRef<RideDetail | null>(null)
   useEffect(() => {
     rideRef.current = ride
@@ -271,6 +273,52 @@ export default function BookRidePage() {
     else setDestination(p)
   }, [])
 
+  // Ask for the rider's GPS, center the map on it, and default the pickup there.
+  // `auto` suppresses error toasts for the silent on-load attempt.
+  const locateMe = useCallback((auto = false) => {
+    if (!("geolocation" in navigator)) {
+      if (!auto) toast.error("Location isn't available in this browser.")
+      return
+    }
+    setLocating(true)
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const coords: Coords = [pos.coords.longitude, pos.coords.latitude]
+        setGpsFocus(coords)
+        let address = "Current location"
+        try {
+          const res = await api.get("/geo/reverse", { params: { lng: coords[0], lat: coords[1] } })
+          address = res.data.data.address
+        } catch {
+          /* keep fallback label */
+        }
+        setPickup({ address, coordinates: coords })
+        setLocating(false)
+      },
+      (err) => {
+        setLocating(false)
+        if (!auto) {
+          toast.error(
+            err.code === err.PERMISSION_DENIED
+              ? "Location permission denied — set your pickup on the map instead."
+              : "Couldn't get your location — set your pickup on the map instead.",
+          )
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10_000, maximumAge: 30_000 },
+    )
+  }, [])
+
+  // Once authenticated (and only if there's no active ride and no pickup yet),
+  // try to prefill the pickup from GPS. Deferred so the setState in locateMe
+  // doesn't run synchronously inside this effect.
+  const autoLocatedRef = useRef(false)
+  useEffect(() => {
+    if (!checked || ride || pickup || autoLocatedRef.current) return
+    autoLocatedRef.current = true
+    queueMicrotask(() => locateMe(true))
+  }, [checked, ride, pickup, locateMe])
+
   const requestRide = async () => {
     if (!pickup || !destination) return
     try {
@@ -338,6 +386,7 @@ export default function BookRidePage() {
         onPlace={showRide ? undefined : place}
         routePolyline={ride?.routePolyline ?? estimate?.polyline ?? null}
         driverPosition={driverPos}
+        focus={gpsFocus}
         className="absolute inset-0"
       />
 
@@ -364,10 +413,21 @@ export default function BookRidePage() {
                 <h2 className="font-semibold text-gray-900">Where to?</h2>
                 <LocationField placeholder="Pickup location" value={pickup} onPick={setPickup} accent="#059669" />
                 <LocationField placeholder="Destination" value={destination} onPick={setDestination} accent="#dc2626" />
-                <p className="text-xs text-gray-500 flex items-center">
-                  <MapPin className="w-3.5 h-3.5 mr-1" />
-                  Tap the map to set {pickup ? "destination" : "pickup"}, or drag the pins.
-                </p>
+                <div className="flex items-center justify-between">
+                  <p className="text-xs text-gray-500 flex items-center">
+                    <MapPin className="w-3.5 h-3.5 mr-1" />
+                    Tap the map to set {pickup ? "destination" : "pickup"}, or drag the pins.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => locateMe(false)}
+                    disabled={locating}
+                    className="text-xs font-medium text-emerald-600 hover:text-emerald-700 flex items-center shrink-0 disabled:opacity-60"
+                  >
+                    <LocateFixed className={`w-3.5 h-3.5 mr-1 ${locating ? "animate-spin" : ""}`} />
+                    {locating ? "Locating…" : "Use my location"}
+                  </button>
+                </div>
 
                 {visibleEstimate && (
                   <div className="space-y-2 pt-1">
