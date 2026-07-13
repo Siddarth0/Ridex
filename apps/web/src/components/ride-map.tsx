@@ -32,9 +32,11 @@ function makePin(color: string): HTMLDivElement {
 }
 
 function makeDriverDot(): HTMLDivElement {
+  // Blue = a live GPS position (the driver's car on the rider's map, or the
+  // driver's own location on their map) — distinct from the teardrop pins.
   const el = document.createElement("div")
-  el.style.cssText = `width:16px;height:16px;border-radius:50%;background:#059669;
-    border:3px solid white;box-shadow:0 0 0 6px rgba(5,150,105,.25);`
+  el.style.cssText = `width:16px;height:16px;border-radius:50%;background:#2563eb;
+    border:3px solid white;box-shadow:0 0 0 6px rgba(37,99,235,.25);`
   return el
 }
 
@@ -153,14 +155,38 @@ export function RideMap({
     }
     sync(pickup, pickupMarker, "#059669", "pickup")
     sync(destination, destMarker, "#dc2626", "destination")
-
-    if (pickup && destination) {
-      const bounds = new maplibregl.LngLatBounds(pickup, pickup).extend(destination)
-      map.fitBounds(bounds, { padding: 80, maxZoom: 15 })
-    } else if (pickup) {
-      map.easeTo({ center: pickup, zoom: 14 })
-    }
   }, [pickup, destination])
+
+  // Framing: fit to the drawn route (which spans both endpoints), else to the
+  // pins. Keyed so it only reframes when the context changes — not on every
+  // driver-position tick.
+  const fitKeyRef = useRef("")
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map) return
+    const routeCoords = routePolyline
+      ? decodePolyline(routePolyline)
+      : pickup && destination
+        ? [pickup, destination]
+        : null
+    const key = JSON.stringify({ routePolyline, pickup, destination })
+    if (key === fitKeyRef.current) return
+    fitKeyRef.current = key
+    const frame = () => {
+      if (routeCoords && routeCoords.length > 0) {
+        const first = routeCoords[0]!
+        const bounds = routeCoords.reduce(
+          (b, c) => b.extend(c),
+          new maplibregl.LngLatBounds(first, first),
+        )
+        map.fitBounds(bounds, { padding: 70, maxZoom: 16 })
+      } else if (pickup) {
+        map.easeTo({ center: pickup, zoom: 14 })
+      }
+    }
+    if (map.isStyleLoaded()) frame()
+    else map.once("load", frame)
+  }, [routePolyline, pickup, destination])
 
   // Route line. Prefer the real routed polyline; if routing degraded to no
   // polyline but we have both endpoints, fall back to a straight line so the

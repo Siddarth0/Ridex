@@ -16,6 +16,13 @@ const reverseQuery = z.object({
   lng: z.coerce.number().min(-180).max(180),
 });
 
+const routeQuery = z.object({
+  fromLat: z.coerce.number().min(-90).max(90),
+  fromLng: z.coerce.number().min(-180).max(180),
+  toLat: z.coerce.number().min(-90).max(90),
+  toLng: z.coerce.number().min(-180).max(180),
+});
+
 export function geoRouter(db: Db, geo: GeoProvider): Router {
   const router = Router();
 
@@ -34,6 +41,23 @@ export function geoRouter(db: Db, geo: GeoProvider): Router {
     const q = reverseQuery.parse(req.query);
     const address = await geo.reverseGeocode([q.lng, q.lat]);
     res.json({ success: true, data: { address } });
+  });
+
+  // Turn-by-turn geometry between two arbitrary points — used by the driver
+  // app to draw the route to the pickup (their position changes, so this can't
+  // reuse the ride's stored pickup→destination polyline).
+  router.get("/route", async (req, res) => {
+    const q = routeQuery.parse(req.query);
+    const route = await geo.route([q.fromLng, q.fromLat], [q.toLng, q.toLat]);
+    res.json({
+      success: true,
+      data: {
+        polyline: route.polyline,
+        distanceM: route.distanceM,
+        durationS: route.durationS,
+        degraded: route.degraded,
+      },
+    });
   });
 
   return router;

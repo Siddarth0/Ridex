@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { RideMap } from "@/components/ride-map"
 import {
   Banknote,
   Car,
@@ -40,11 +41,13 @@ interface Offer {
   expiresInS: number
   receivedAt: number
 }
+type Coords = [number, number]
 interface ActiveRide {
   id: string
   status: string
-  pickup: { address: string }
-  destination: { address: string }
+  pickup: { address: string; coordinates: Coords }
+  destination: { address: string; coordinates: Coords }
+  routePolyline: string | null
   estimatedFare: number | null
   finalFare: number | null
   currency: string
@@ -68,6 +71,8 @@ export default function DriverDashboardPage() {
   const [history, setHistory] = useState<ActiveRide[]>([])
   const [acting, setActing] = useState(false)
   const [nowMs, setNowMs] = useState(0)
+  const [selfPos, setSelfPos] = useState<Coords | null>(null)
+  const [pickupRoute, setPickupRoute] = useState<string | null>(null)
   const watchIdRef = useRef<number | null>(null)
   const lastSentRef = useRef(0)
   const rideRef = useRef<ActiveRide | null>(null)
@@ -191,6 +196,8 @@ export default function DriverDashboardPage() {
       if (disposed) return
       watchIdRef.current = navigator.geolocation.watchPosition(
         (pos) => {
+          // Update the local map marker every fix; throttle the socket emit
+          setSelfPos([pos.coords.longitude, pos.coords.latitude])
           const now = Date.now()
           if (now - lastSentRef.current < 3000) return
           lastSentRef.current = now
@@ -214,6 +221,24 @@ export default function DriverDashboardPage() {
     }
   }, [online, ride])
 
+  // Route from the driver's current position to the pickup, while heading
+  // there. Fetched once per ride; the trip route (pickup→destination) uses the
+  // ride's stored polyline once the ride is in progress.
+  const pickupRouteRideRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (!ride || !selfPos) return
+    if (ride.status !== "accepted" && ride.status !== "arrived") return
+    if (pickupRouteRideRef.current === ride.id) return
+    pickupRouteRideRef.current = ride.id
+    const [pLng, pLat] = ride.pickup.coordinates
+    api
+      .get("/geo/route", {
+        params: { fromLat: selfPos[1], fromLng: selfPos[0], toLat: pLat, toLng: pLng },
+      })
+      .then((res) => setPickupRoute(res.data.data.polyline))
+      .catch(() => {})
+  }, [ride, selfPos])
+
   const toggleOnline = async () => {
     try {
       const res = await api.post("/drivers/me/online", { online: !online })
@@ -228,7 +253,11 @@ export default function DriverDashboardPage() {
     setOffers((prev) => prev.filter((o) => o.rideId !== offer.rideId))
     try {
       const res = await api.post(`/rides/${offer.rideId}/${action}`)
-      if (action === "accept") setRide(res.data.data.ride)
+      if (action === "accept") {
+        setPickupRoute(null)
+        pickupRouteRideRef.current = null
+        setRide(res.data.data.ride)
+      }
     } catch (error) {
       if (action === "accept") toast.error(getApiErrorMessage(error, "Offer no longer available"))
     }
@@ -254,6 +283,16 @@ export default function DriverDashboardPage() {
       toast.error(getApiErrorMessage(error, "Action failed"))
     } finally {
       setActing(false)
+    }
+  }
+
+  const cancelActiveRide = async () => {
+    if (!ride) return
+    try {
+      await api.post(`/rides/${ride.id}/cancel`, { reason: "Driver cancelled" })
+      setRide(null)
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Could not cancel"))
     }
   }
 
@@ -294,6 +333,96 @@ export default function DriverDashboardPage() {
             </Button>
           </CardContent>
         </Card>
+      </div>
+    )
+  }
+
+  // Active ride: a navigation-style map view. Heading to the pickup shows the
+  // route from the driver's position to the pickup; once at the pickup, it
+  // switches to the destination and the trip route.
+  if (ride) {
+    const toPickup = ride.status === "accepted"
+    const target = toPickup ? ride.pickup : ride.destination
+    const phaseCopy: Record<string, string> = {
+      accepted: "Head to the pickup",
+      arrived: "At pickup — start when the rider is in",
+      in_progress: "Driving to the destination",
+    }
+    return (
+      <div className="h-screen w-screen relative overflow-hidden bg-gray-100">
+        <RideMap
+          pickup={ride.pickup.coordinates}
+          destination={toPickup ? null : ride.destination.coordinates}
+          routePolyline={toPickup ? pickupRoute : ride.routePolyline}
+          driverPosition={selfPos}
+          className="absolute inset-0"
+        />
+
+        <div className="absolute top-4 left-4 right-4 z-10 flex items-center justify-between">
+          <Badge className="bg-emerald-600 text-white hover:bg-emerald-600 shadow-md px-3 py-1.5">
+            {phaseCopy[ride.status] ?? ride.status}
+          </Badge>
+          {!selfPos && (
+            <Badge className="bg-white text-gray-600 hover:bg-white shadow-md">Getting GPS…</Badge>
+          )}
+        </div>
+
+        <div className="absolute bottom-4 left-0 right-0 z-10 px-4 md:max-w-md md:left-4 md:right-auto md:w-96">
+          <Card className="shadow-2xl border-0">
+            <CardContent className="p-4 space-y-3">
+              {ride.rider && (
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold">
+                      {ride.rider.firstName} {ride.rider.lastName}
+                    </p>
+                    <p className="text-sm text-gray-500">Rider</p>
+                  </div>
+                  <a href={`tel:${ride.rider.phone}`}>
+                    <Button size="sm" variant="outline">
+                      <Phone className="w-4 h-4" />
+                    </Button>
+                  </a>
+                </div>
+              )}
+
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-xs text-gray-500 mb-0.5">{toPickup ? "Pickup" : "Destination"}</p>
+                <p className="font-medium flex items-start">
+                  {toPickup ? (
+                    <MapPin className="w-4 h-4 mr-2 mt-0.5 text-emerald-600 shrink-0" />
+                  ) : (
+                    <Navigation className="w-4 h-4 mr-2 mt-0.5 text-red-500 shrink-0" />
+                  )}
+                  {target.address}
+                </p>
+              </div>
+
+              <p className="text-sm text-gray-600">
+                Fare: <b>{ride.currency} {ride.estimatedFare}</b> · collect in cash
+              </p>
+
+              {NEXT_ACTION[ride.status] && (
+                <Button
+                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-700"
+                  disabled={acting}
+                  onClick={advance}
+                >
+                  {NEXT_ACTION[ride.status]!.label}
+                </Button>
+              )}
+              {["accepted", "arrived"].includes(ride.status) && (
+                <Button
+                  variant="outline"
+                  className="w-full text-red-600 border-red-200"
+                  onClick={cancelActiveRide}
+                >
+                  Cancel ride
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
     )
   }
@@ -397,75 +526,6 @@ export default function DriverDashboardPage() {
             </Card>
           )
         })}
-
-        {/* Active ride */}
-        {ride && (
-          <Card className="border-0 shadow-lg">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base flex items-center justify-between">
-                <span>Current ride</span>
-                <Badge className="bg-emerald-100 text-emerald-700 capitalize">
-                  {ride.status.replace("_", " ")}
-                </Badge>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {ride.rider && (
-                <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
-                  <div>
-                    <p className="font-semibold">
-                      {ride.rider.firstName} {ride.rider.lastName}
-                    </p>
-                    <p className="text-sm text-gray-500">Rider</p>
-                  </div>
-                  <a href={`tel:${ride.rider.phone}`}>
-                    <Button size="sm" variant="outline">
-                      <Phone className="w-4 h-4" />
-                    </Button>
-                  </a>
-                </div>
-              )}
-              <div className="text-sm space-y-1">
-                <p className="flex items-start">
-                  <MapPin className="w-4 h-4 mr-2 mt-0.5 text-emerald-600 shrink-0" />
-                  {ride.pickup.address}
-                </p>
-                <p className="flex items-start">
-                  <Navigation className="w-4 h-4 mr-2 mt-0.5 text-red-500 shrink-0" />
-                  {ride.destination.address}
-                </p>
-              </div>
-              <p className="text-sm text-gray-600">
-                Fare: <b>{ride.currency} {ride.estimatedFare}</b> · collect in cash
-              </p>
-              {NEXT_ACTION[ride.status] && (
-                <Button
-                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-700"
-                  disabled={acting}
-                  onClick={advance}
-                >
-                  {NEXT_ACTION[ride.status]!.label}
-                </Button>
-              )}
-              {["accepted", "arrived"].includes(ride.status) && (
-                <Button
-                  variant="outline"
-                  className="w-full text-red-600 border-red-200"
-                  onClick={async () => {
-                    try {
-                      await api.post(`/rides/${ride.id}/cancel`, { reason: "Driver cancelled" })
-                      setRide(null)
-                    } catch (error) {
-                      toast.error(getApiErrorMessage(error, "Could not cancel"))
-                    }
-                  }}
-                >
-                  Cancel ride
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        )}
 
         {/* Idle state */}
         {!ride && offers.length === 0 && (
