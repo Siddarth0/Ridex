@@ -78,37 +78,55 @@ function LocationField({
   const [edited, setEdited] = useState<string | null>(null)
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [searched, setSearched] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const reqId = useRef(0)
   const text = edited ?? value?.address ?? ""
 
   const search = (q: string) => {
     setEdited(q)
+    setOpen(true)
     if (timer.current) clearTimeout(timer.current)
     if (q.trim().length < 2) {
       setSuggestions([])
+      setSearched(false)
+      setLoading(false)
       return
     }
+    setLoading(true)
+    const id = ++reqId.current
     timer.current = setTimeout(async () => {
       try {
         const res = await api.get("/geo/search", { params: { q } })
-        setSuggestions(res.data.data.results)
-        setOpen(true)
-      } catch {
-        /* geocoding is best-effort */
+        if (id !== reqId.current) return // a newer keystroke superseded this one
+        setSuggestions(res.data.data.results ?? [])
+      } catch (err) {
+        if (id !== reqId.current) return
+        console.error("Location search failed:", err)
+        setSuggestions([])
+      } finally {
+        if (id === reqId.current) {
+          setLoading(false)
+          setSearched(true)
+        }
       }
-    }, 400)
+    }, 350)
   }
+
+  const showDropdown = open && (loading || suggestions.length > 0 || searched)
 
   return (
     <div className="relative">
       <span
-        className="absolute left-3 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full"
+        className="absolute left-3 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full z-10"
         style={{ background: accent }}
       />
       <Input
         value={text}
         placeholder={placeholder}
         className="pl-8 h-11 bg-white"
+        autoComplete="off"
         onChange={(e) => search(e.target.value)}
         onFocus={() => suggestions.length > 0 && setOpen(true)}
         onBlur={() =>
@@ -118,27 +136,39 @@ function LocationField({
           }, 150)
         }
       />
-      {open && suggestions.length > 0 && (
+      {showDropdown && (
         // Opens upward: the panel sits at the bottom of the screen, so a
         // downward dropdown would be clipped by the viewport edge.
-        <div className="absolute bottom-full mb-1 z-20 w-full bg-white rounded-md border shadow-lg max-h-56 overflow-auto">
-          {suggestions.map((s, i) => (
-            <button
-              key={i}
-              type="button"
-              className="w-full text-left px-3 py-2 text-sm hover:bg-emerald-50"
-              onMouseDown={() => {
-                onPick({ address: s.address || s.name, coordinates: s.coordinates })
-                setEdited(null)
-                setOpen(false)
-              }}
-            >
-              <span className="font-medium">{s.name}</span>
-              {s.address && s.address !== s.name && (
-                <span className="text-gray-500 block text-xs">{s.address}</span>
-              )}
-            </button>
-          ))}
+        <div className="absolute bottom-full mb-1 z-30 w-full bg-white rounded-md border shadow-lg max-h-56 overflow-auto">
+          {loading && (
+            <div className="px-3 py-2.5 text-sm text-gray-500 flex items-center">
+              <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> Searching…
+            </div>
+          )}
+          {!loading &&
+            suggestions.map((s, i) => (
+              <button
+                key={i}
+                type="button"
+                className="w-full text-left px-3 py-2 text-sm hover:bg-emerald-50"
+                onMouseDown={() => {
+                  onPick({ address: s.address || s.name, coordinates: s.coordinates })
+                  setEdited(null)
+                  setSuggestions([])
+                  setOpen(false)
+                }}
+              >
+                <span className="font-medium">{s.name}</span>
+                {s.address && s.address !== s.name && (
+                  <span className="text-gray-500 block text-xs">{s.address}</span>
+                )}
+              </button>
+            ))}
+          {!loading && searched && suggestions.length === 0 && (
+            <div className="px-3 py-2.5 text-sm text-gray-500">
+              No matches — drop a pin on the map instead.
+            </div>
+          )}
         </div>
       )}
     </div>
