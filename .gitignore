@@ -47,6 +47,9 @@ web_modules/
 # TypeScript cache
 *.tsbuildinfo
 
+# Turborepo
+.turbo
+
 # Optional npm cache directory
 .npm
 
@@ -124,6 +127,8 @@ dist
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
+
+PLAN.md
 
 # yarn v3
 .pnp.*
