@@ -3,7 +3,7 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
-import api from "@/lib/api"
+import api, { isUnauthorized } from "@/lib/api"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,18 +25,31 @@ export default function DashboardPage() {
   const [activeRide, setActiveRide] = useState<{ id: string; status: string } | null>(null)
 
   useEffect(() => {
-    api
-      .get("/auth/me")
-      .then(async (res) => {
+    let cancelled = false
+    void (async () => {
+      try {
+        const res = await api.get("/auth/me")
+        if (cancelled) return
         setMe(res.data?.data?.user ?? null)
+      } catch (error) {
+        if (!cancelled && isUnauthorized(error)) {
+          toast.error("Please sign in to continue.")
+          router.push("/login")
+        }
+        if (!cancelled) setLoading(false)
+        return
+      }
+      try {
         const active = await api.get("/rides/active")
-        setActiveRide(active.data?.data?.ride ?? null)
-      })
-      .catch(() => {
-        toast.error("Please sign in to continue.")
-        router.push("/login")
-      })
-      .finally(() => setLoading(false))
+        if (!cancelled) setActiveRide(active.data?.data?.ride ?? null)
+      } catch {
+        /* non-critical — the dashboard still works without this */
+      }
+      if (!cancelled) setLoading(false)
+    })()
+    return () => {
+      cancelled = true
+    }
   }, [router])
 
   const handleLogout = async () => {

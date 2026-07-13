@@ -93,24 +93,34 @@ export default function DriverDashboardPage() {
     }
   }, [])
 
-  // Bootstrap: profile, active ride, earnings, history
+  // Bootstrap: profile, active ride, earnings, history. The driver profile
+  // fetch decides whether we belong here; a failure fetching the active ride
+  // afterwards must not evict an otherwise-authenticated driver.
   useEffect(() => {
     let cancelled = false
-    Promise.all([api.get("/drivers/me"), api.get("/rides/active")])
-      .then(([profileRes, activeRes]) => {
+    void (async () => {
+      try {
+        const profileRes = await api.get("/drivers/me")
         if (cancelled) return
         const driver = profileRes.data.data.driver
         setProfile(driver)
         setOnline(driver.isOnline)
-        if (activeRes.data.data.ride) setRide(activeRes.data.data.ride)
-      })
-      .catch(() => {
-        toast.error("Sign in with a driver account to continue.")
-        router.push("/driver/login")
-      })
-      .finally(() => {
+      } catch {
+        if (!cancelled) {
+          toast.error("Sign in with a driver account to continue.")
+          router.push("/driver/login")
+        }
         if (!cancelled) setLoading(false)
-      })
+        return
+      }
+      try {
+        const activeRes = await api.get("/rides/active")
+        if (!cancelled && activeRes.data.data.ride) setRide(activeRes.data.data.ride)
+      } catch {
+        /* non-critical — the dashboard still works without this */
+      }
+      if (!cancelled) setLoading(false)
+    })()
     queueMicrotask(() => {
       void refreshEarnings()
       void refreshHistory()

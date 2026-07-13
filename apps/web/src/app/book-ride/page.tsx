@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import api, { getApiErrorMessage } from "@/lib/api"
+import api, { getApiErrorMessage, isUnauthorized } from "@/lib/api"
 import { getSocket } from "@/lib/socket"
 import { toast } from "sonner"
 import { RideMap } from "@/components/ride-map"
@@ -164,22 +164,32 @@ export default function BookRidePage() {
     rideRef.current = ride
   }, [ride])
 
-  // Auth + resume any live ride
+  // Auth + resume any live ride. The identity check and the active-ride
+  // lookup are handled separately: only a genuine "not logged in" from
+  // /auth/me sends the rider to login. A failure fetching /rides/active
+  // (transient, unrelated) must never evict an otherwise-authenticated user.
   useEffect(() => {
     let cancelled = false
-    api
-      .get("/auth/me")
-      .then(async () => {
+    void (async () => {
+      try {
+        await api.get("/auth/me")
+      } catch (error) {
+        if (!cancelled && isUnauthorized(error)) {
+          toast.error("Please sign in to book a ride.")
+          router.push("/login")
+        }
+        if (!cancelled) setChecked(true)
+        return
+      }
+      if (cancelled) return
+      setChecked(true)
+      try {
         const res = await api.get("/rides/active")
         if (!cancelled && res.data.data.ride) setRide(res.data.data.ride)
-      })
-      .catch(() => {
-        toast.error("Please sign in to book a ride.")
-        router.push("/login")
-      })
-      .finally(() => {
-        if (!cancelled) setChecked(true)
-      })
+      } catch {
+        /* non-critical — the rider can still book from a clean slate */
+      }
+    })()
     return () => {
       cancelled = true
     }
