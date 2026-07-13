@@ -1,4 +1,4 @@
-import { and, eq, inArray, lte, sql } from "drizzle-orm";
+import { and, eq, gt, inArray, lte, sql } from "drizzle-orm";
 import { RIDE_OFFER_TTL_S } from "@ridex/shared";
 import type { Db } from "../../db/index.js";
 import { driverLocations, drivers, rideOffers, rides, vehicles } from "../../db/schema/index.js";
@@ -182,7 +182,10 @@ export async function acceptOffer(
           eq(rideOffers.rideId, rideId),
           eq(rideOffers.driverId, driver.id),
           eq(rideOffers.status, "offered"),
-          sql`${rideOffers.expiresAt} > ${now}`,
+          // Use the typed operator, not a raw sql fragment: postgres.js can't
+          // serialize a bare Date interpolated into raw sql (it works on PGlite,
+          // which is why the tests didn't catch it).
+          gt(rideOffers.expiresAt, now),
         ),
       )
       .returning();
