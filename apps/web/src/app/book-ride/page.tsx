@@ -418,6 +418,7 @@ export default function BookRidePage() {
         onPlace={showRide ? undefined : place}
         routePolyline={ride?.routePolyline ?? estimate?.polyline ?? null}
         driverPosition={driverPos}
+        driverVehicle={(ride?.rideType as "bike" | "car" | "premium") ?? null}
         focus={gpsFocus}
         className="absolute inset-0"
       />

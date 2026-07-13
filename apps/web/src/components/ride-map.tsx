@@ -10,6 +10,8 @@ const MAP_STYLE =
 
 const KATHMANDU: [number, number] = [85.3123, 27.7154]
 
+type VehicleType = "bike" | "car" | "premium"
+
 export interface RideMapProps {
   pickup: [number, number] | null
   destination: [number, number] | null
@@ -19,9 +21,29 @@ export interface RideMapProps {
   placing?: "pickup" | "destination" | null
   routePolyline?: string | null
   driverPosition?: [number, number] | null
+  /** Vehicle type for the live marker's icon; falls back to a plain dot. */
+  driverVehicle?: VehicleType | null
   /** Where to center the map before any pins exist (e.g. the user's GPS). */
   focus?: [number, number] | null
   className?: string
+}
+
+// Lucide icon geometry, inlined so it can live on a raw DOM marker element
+const CAR_SVG =
+  '<path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>'
+const BIKE_SVG =
+  '<circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/>'
+
+function makeVehicleMarker(vehicle: VehicleType): HTMLDivElement {
+  const el = document.createElement("div")
+  el.style.cssText = `width:30px;height:30px;border-radius:50%;background:#fff;
+    display:flex;align-items:center;justify-content:center;color:#059669;
+    border:2px solid #059669;box-shadow:0 2px 6px rgba(0,0,0,.35);`
+  const paths = vehicle === "bike" ? BIKE_SVG : CAR_SVG
+  el.innerHTML =
+    `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" ` +
+    `stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`
+  return el
 }
 
 function makePin(color: string): HTMLDivElement {
@@ -47,6 +69,7 @@ export function RideMap({
   placing = null,
   routePolyline,
   driverPosition,
+  driverVehicle,
   focus,
   className,
 }: RideMapProps) {
@@ -239,23 +262,33 @@ export function RideMap({
     else map.once("load", apply)
   }, [routePolyline, pickup, destination])
 
-  // Live driver marker
+  // Live driver marker — a vehicle icon when the type is known, else a dot.
+  const driverIconRef = useRef<string | null>(null)
   useEffect(() => {
     const map = mapRef.current
     if (!map) return
     if (!driverPosition) {
       driverMarker.current?.remove()
       driverMarker.current = null
+      driverIconRef.current = null
       return
     }
+    const iconKey = driverVehicle ?? "dot"
+    // Recreate the element if the icon kind changed (e.g. dot → bike)
+    if (driverMarker.current && driverIconRef.current !== iconKey) {
+      driverMarker.current.remove()
+      driverMarker.current = null
+    }
     if (!driverMarker.current) {
-      driverMarker.current = new maplibregl.Marker({ element: makeDriverDot() })
+      driverIconRef.current = iconKey
+      const element = driverVehicle ? makeVehicleMarker(driverVehicle) : makeDriverDot()
+      driverMarker.current = new maplibregl.Marker({ element })
         .setLngLat(driverPosition)
         .addTo(map)
     } else {
       driverMarker.current.setLngLat(driverPosition)
     }
-  }, [driverPosition])
+  }, [driverPosition, driverVehicle])
 
   return (
     <div className={className ?? "h-full w-full"}>

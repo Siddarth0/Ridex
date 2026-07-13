@@ -42,9 +42,11 @@ interface Offer {
   receivedAt: number
 }
 type Coords = [number, number]
+type VehicleType = "bike" | "car" | "premium"
 interface ActiveRide {
   id: string
   status: string
+  rideType: VehicleType
   pickup: { address: string; coordinates: Coords }
   destination: { address: string; coordinates: Coords }
   routePolyline: string | null
@@ -355,6 +357,7 @@ export default function DriverDashboardPage() {
           destination={toPickup ? null : ride.destination.coordinates}
           routePolyline={toPickup ? pickupRoute : ride.routePolyline}
           driverPosition={selfPos}
+          driverVehicle={ride.rideType}
           className="absolute inset-0"
         />
 
