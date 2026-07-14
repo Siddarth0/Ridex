@@ -129,6 +129,7 @@ dist
 .vscode-test
 
 PLAN.md
+DEPLOY.md
 
 # yarn v3
 .pnp.*

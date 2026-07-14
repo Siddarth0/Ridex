@@ -1,6 +1,7 @@
 import {
   boolean,
   index,
+  integer,
   numeric,
   pgTable,
   text,
@@ -20,6 +21,16 @@ export const fareConfigs = pgTable("fare_configs", {
   perKm: numeric("per_km", { precision: 10, scale: 2, mode: "number" }).notNull(),
   perMin: numeric("per_min", { precision: 10, scale: 2, mode: "number" }).notNull(),
   minFare: numeric("min_fare", { precision: 10, scale: 2, mode: "number" }).notNull(),
+  /** Manual surge dial (1.0–3.0), applied to estimates immediately. */
+  surgeMultiplier: numeric("surge_multiplier", { precision: 4, scale: 2, mode: "number" })
+    .notNull()
+    .default(1),
+  /** Free-cancel grace period after acceptance, in seconds. */
+  cancelFreeWindowS: integer("cancel_free_window_s").notNull().default(120),
+  /** Flat fee charged when a rider cancels past the free window. */
+  cancelFee: numeric("cancel_fee", { precision: 10, scale: 2, mode: "number" })
+    .notNull()
+    .default(0),
   currency: varchar("currency", { length: 3 }).notNull().default("NPR"),
   isActive: boolean("is_active").notNull().default(true),
   updatedAt: timestamp("updated_at", { withTimezone: true })

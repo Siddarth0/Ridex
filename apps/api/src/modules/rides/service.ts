@@ -4,6 +4,7 @@ import { MIN_RIDE_DISTANCE_M, NEPAL_BBOX, RIDE_SEARCH_TTL_S } from "@ridex/share
 import type { Db, DbConn, Tx } from "../../db/index.js";
 import {
   drivers,
+  fareConfigs,
   ledgerEntries,
   rideEvents,
   rideOffers,
@@ -12,6 +13,7 @@ import {
   vehicles,
 } from "../../db/schema/index.js";
 import { AppError } from "../../middleware/errorHandler.js";
+import { writeAudit } from "../../lib/audit.js";
 import type { GeoProvider } from "../geo/provider.js";
 import { computeFare, getFareConfig, splitFare } from "../pricing/service.js";
 import type { RideNotifier } from "./notify.js";
@@ -97,7 +99,7 @@ export async function requestRide(
   }
 
   const cfg = await getFareConfig(db, input.rideType);
-  const estimatedFare = computeFare(cfg, route.distanceM, route.durationS);
+  const estimatedFare = computeFare(cfg, route.distanceM, route.durationS, cfg.surgeMultiplier);
 
   const ride = await db.transaction(async (tx) => {
     const [created] = await tx
@@ -116,6 +118,7 @@ export async function requestRide(
         durationS: route.durationS,
         routePolyline: route.polyline,
         estimatedFare,
+        surgeMultiplier: cfg.surgeMultiplier,
         paymentMethod: input.paymentMethod,
         currency: cfg.currency,
         searchExpiresAt: new Date(Date.now() + RIDE_SEARCH_TTL_S * 1000),
@@ -282,7 +285,25 @@ export async function cancelRide(
     ? ["searching", "accepted", "arrived"]
     : ["accepted", "arrived"];
 
-  const { ride, revokedDriverUserIds } = await db.transaction(async (tx) => {
+  const { ride, revokedDriverUserIds, cancellationFee } = await db.transaction(async (tx) => {
+    // A rider who cancels after the free-cancel window (measured from the
+    // driver's acceptance) owes a flat fee; searching-stage cancels are free.
+    let cancellationFee = 0;
+    if (isRider && current.acceptedAt) {
+      const [cfg] = await tx
+        .select({
+          cancelFreeWindowS: fareConfigs.cancelFreeWindowS,
+          cancelFee: fareConfigs.cancelFee,
+        })
+        .from(fareConfigs)
+        .where(eq(fareConfigs.rideType, current.rideType))
+        .limit(1);
+      if (cfg && cfg.cancelFee > 0) {
+        const elapsedS = (Date.now() - current.acceptedAt.getTime()) / 1000;
+        if (elapsedS > cfg.cancelFreeWindowS) cancellationFee = cfg.cancelFee;
+      }
+    }
+
     const updated = await casTransition(tx, {
       rideId,
       from,
@@ -293,9 +314,22 @@ export async function cancelRide(
         cancellationReason: reason ?? null,
       },
       actorUserId: user.id,
-      metadata: { reason },
+      metadata: { reason, cancellationFee },
     });
     if (!updated) throw new AppError(409, "INVALID_TRANSITION", "Ride can no longer be cancelled");
+
+    // Late rider cancel: the rider owes the platform a cancellation fee (ledger adjustment).
+    if (cancellationFee > 0) {
+      await tx.insert(ledgerEntries).values({
+        rideId,
+        userId: updated.riderId,
+        type: "adjustment",
+        amount: cancellationFee,
+        method: "cash",
+        currency: updated.currency,
+        note: "cancellation_fee",
+      });
+    }
 
     // Kill any outstanding offers and tell those drivers
     const revoked = await tx
@@ -312,6 +346,72 @@ export async function cancelRide(
         .where(inArray(drivers.id, revoked.map((r) => r.driverId)));
       revokedDriverUserIds = rows.map((r) => r.userId);
     }
+    return { ride: updated, revokedDriverUserIds, cancellationFee };
+  });
+
+  for (const driverUserId of revokedDriverUserIds) {
+    notifier.offerRevoked(driverUserId, rideId, "cancelled");
+  }
+
+  let assignedDriverUserId: string | null = null;
+  if (ride.driverId) {
+    const [d] = await db
+      .select({ userId: drivers.userId })
+      .from(drivers)
+      .where(eq(drivers.id, ride.driverId))
+      .limit(1);
+    assignedDriverUserId = d?.userId ?? null;
+  }
+  const detail = await getRideDetail(db, ride);
+  notifier.rideUpdate(ride.riderId, assignedDriverUserId, detail);
+  return { ...detail, cancellationFee };
+}
+
+/** Admin override: cancel any active ride with a reason. Audited. */
+export async function adminForceCancel(
+  db: Db,
+  notifier: RideNotifier,
+  ctx: { actorUserId: string; ip?: string | null },
+  rideId: string,
+  reason: string,
+) {
+  const { ride, revokedDriverUserIds } = await db.transaction(async (tx) => {
+    const updated = await casTransition(tx, {
+      rideId,
+      from: [...ACTIVE_RIDE_STATUSES],
+      to: "cancelled",
+      set: {
+        cancelledAt: new Date(),
+        cancelledBy: "system",
+        cancellationReason: reason,
+      },
+      actorUserId: ctx.actorUserId,
+      metadata: { reason, forcedByAdmin: true },
+    });
+    if (!updated) throw new AppError(409, "INVALID_TRANSITION", "Ride is not active");
+
+    const revoked = await tx
+      .update(rideOffers)
+      .set({ status: "superseded", respondedAt: new Date() })
+      .where(and(eq(rideOffers.rideId, rideId), eq(rideOffers.status, "offered")))
+      .returning({ driverId: rideOffers.driverId });
+
+    let revokedDriverUserIds: string[] = [];
+    if (revoked.length > 0) {
+      const rows = await tx
+        .select({ userId: drivers.userId })
+        .from(drivers)
+        .where(inArray(drivers.id, revoked.map((r) => r.driverId)));
+      revokedDriverUserIds = rows.map((r) => r.userId);
+    }
+
+    await writeAudit(tx, ctx, {
+      action: "ride.force_cancel",
+      entityType: "ride",
+      entityId: rideId,
+      diff: { reason },
+    });
+
     return { ride: updated, revokedDriverUserIds };
   });
 

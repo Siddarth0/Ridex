@@ -1,7 +1,14 @@
 import { Router } from "express";
 import { and, count, desc, eq } from "drizzle-orm";
 import { z } from "zod";
-import { DRIVER_STATUSES, USER_ROLES } from "@ridex/shared";
+import {
+  AUDIT_ACTIONS,
+  DRIVER_STATUSES,
+  RIDE_STATUSES,
+  RIDE_TYPES,
+  USER_ROLES,
+  fareConfigUpdateSchema,
+} from "@ridex/shared";
 import type { Db } from "../../db/index.js";
 import type { StorageProvider } from "../../lib/storage.js";
 import { driverDocuments, drivers, users, vehicles } from "../../db/schema/index.js";
@@ -10,6 +17,18 @@ import { validate } from "../../middleware/validate.js";
 import { AppError } from "../../middleware/errorHandler.js";
 import { toPublicUser } from "../auth/service.js";
 import { getDocumentForDownload } from "../drivers/service.js";
+import { adminForceCancel } from "../rides/service.js";
+import type { RideNotifier } from "../rides/notify.js";
+import { listFareConfigs, updateFareConfig } from "../pricing/service.js";
+import {
+  getDriverBalance,
+  getOpsOverview,
+  getRideForAdmin,
+  listAuditLogs,
+  listRides,
+  setDriverStatus,
+  setUserActive,
+} from "./service.js";
 
 const listDriversQuery = z.object({
   status: z.enum(DRIVER_STATUSES).optional(),
@@ -23,12 +42,32 @@ const listUsersQuery = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
 });
 
-const rejectSchema = z.object({ reason: z.string().trim().min(1).max(500) });
+const listRidesQuery = z.object({
+  status: z.enum(RIDE_STATUSES).optional(),
+  q: z.string().trim().min(1).max(120).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+});
 
-export function adminRouter(db: Db, storage: StorageProvider): Router {
+const listAuditQuery = z.object({
+  action: z.enum(AUDIT_ACTIONS).optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+});
+
+const rejectSchema = z.object({ reason: z.string().trim().min(1).max(500) });
+const reasonSchema = z.object({ reason: z.string().trim().min(1).max(500) });
+const optionalReasonSchema = z.object({ reason: z.string().trim().min(1).max(500).optional() });
+
+export function adminRouter(db: Db, storage: StorageProvider, notifier: RideNotifier): Router {
   const router = Router();
 
   router.use(requireAuth(db), requireRole("admin"));
+
+  const auditCtx = (req: import("express").Request) => ({
+    actorUserId: req.user!.id,
+    ip: req.ip ?? null,
+  });
 
   router.get("/drivers", async (req, res) => {
     const q = listDriversQuery.parse(req.query);
@@ -86,6 +125,8 @@ export function adminRouter(db: Db, storage: StorageProvider): Router {
       .from(driverDocuments)
       .where(eq(driverDocuments.driverId, driver.drivers.id));
 
+    const balance = await getDriverBalance(db, driver.users.id);
+
     res.json({
       success: true,
       data: {
@@ -94,9 +135,20 @@ export function adminRouter(db: Db, storage: StorageProvider): Router {
           user: toPublicUser(driver.users),
           vehicles: driverVehicles,
           documents: documents.map(({ storagePath: _sp, ...doc }) => doc),
+          balance,
         },
       },
     });
+  });
+
+  router.post("/drivers/:id/suspend", validate(optionalReasonSchema), async (req, res) => {
+    const driver = await setDriverStatus(db, auditCtx(req), String(req.params.id), true, req.body.reason);
+    res.json({ success: true, data: { driver } });
+  });
+
+  router.post("/drivers/:id/reactivate", validate(optionalReasonSchema), async (req, res) => {
+    const driver = await setDriverStatus(db, auditCtx(req), String(req.params.id), false, req.body.reason);
+    res.json({ success: true, data: { driver } });
   });
 
   router.post("/drivers/:id/approve", async (req, res) => {
@@ -150,6 +202,58 @@ export function adminRouter(db: Db, storage: StorageProvider): Router {
       success: true,
       data: { users: rows.map(toPublicUser), page: q.page, limit: q.limit, total: total?.value ?? 0 },
     });
+  });
+
+  router.post("/users/:id/suspend", validate(optionalReasonSchema), async (req, res) => {
+    const user = await setUserActive(db, auditCtx(req), String(req.params.id), false, req.body.reason);
+    res.json({ success: true, data: { user } });
+  });
+
+  router.post("/users/:id/reactivate", validate(optionalReasonSchema), async (req, res) => {
+    const user = await setUserActive(db, auditCtx(req), String(req.params.id), true, req.body.reason);
+    res.json({ success: true, data: { user } });
+  });
+
+  // ── Rides ────────────────────────────────────────────────────────────────
+  router.get("/rides", async (req, res) => {
+    const q = listRidesQuery.parse(req.query);
+    const data = await listRides(db, q);
+    res.json({ success: true, data });
+  });
+
+  router.get("/rides/:id", async (req, res) => {
+    const data = await getRideForAdmin(db, String(req.params.id));
+    res.json({ success: true, data });
+  });
+
+  router.post("/rides/:id/force-cancel", validate(reasonSchema), async (req, res) => {
+    const ride = await adminForceCancel(db, notifier, auditCtx(req), String(req.params.id), req.body.reason);
+    res.json({ success: true, data: { ride } });
+  });
+
+  // ── Pricing console ────────────────────────────────────────────────────────
+  router.get("/pricing", async (_req, res) => {
+    const configs = await listFareConfigs(db);
+    res.json({ success: true, data: { configs } });
+  });
+
+  router.patch("/pricing/:rideType", validate(fareConfigUpdateSchema), async (req, res) => {
+    const rideType = z.enum(RIDE_TYPES).parse(req.params.rideType);
+    const config = await updateFareConfig(db, auditCtx(req), rideType, req.body);
+    res.json({ success: true, data: { config } });
+  });
+
+  // ── Audit log ──────────────────────────────────────────────────────────────
+  router.get("/audit", async (req, res) => {
+    const q = listAuditQuery.parse(req.query);
+    const data = await listAuditLogs(db, q);
+    res.json({ success: true, data });
+  });
+
+  // ── Live ops snapshot ────────────────────────────────────────────────────
+  router.get("/overview", async (_req, res) => {
+    const data = await getOpsOverview(db);
+    res.json({ success: true, data });
   });
 
   return router;

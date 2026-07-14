@@ -24,6 +24,13 @@ jobs:
 
       - run: pnpm typecheck
 
+      - run: pnpm lint
+
       - run: pnpm test
 
       - run: pnpm build
+
+      # Non-blocking: surface known vulnerabilities in production deps without
+      # failing the build (advisory noise shouldn't gate merges).
+      - name: Dependency audit (advisory)
+        run: pnpm audit --prod || true

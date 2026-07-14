@@ -55,3 +55,25 @@ export const MIN_RIDE_DISTANCE_M = 100;
 
 /** Rough Nepal bounding box — sanity check on pickup coordinates. */
 export const NEPAL_BBOX = { minLat: 26.3, maxLat: 30.5, minLng: 80.0, maxLng: 88.3 } as const;
+
+// ── Admin pricing & cancellation (Phase 3; admins tune these, server enforces) ──
+
+/** Manual surge dial bounds. 1.0 = no surge; demand-based surge is out of scope. */
+export const SURGE_MIN = 1.0;
+export const SURGE_MAX = 3.0;
+
+/** Grace period after a driver accepts, within which a rider cancels free. */
+export const DEFAULT_CANCEL_FREE_WINDOW_S = 120;
+
+/** Admin action kinds recorded in audit_logs. Stable — the viewer filters on these. */
+export const AUDIT_ACTIONS = [
+  "driver.approve",
+  "driver.reject",
+  "driver.suspend",
+  "driver.reactivate",
+  "user.suspend",
+  "user.reactivate",
+  "ride.force_cancel",
+  "pricing.update",
+] as const;
+export type AuditAction = (typeof AUDIT_ACTIONS)[number];

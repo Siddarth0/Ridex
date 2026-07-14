@@ -9,7 +9,9 @@ import {
 import type { Db } from "../../db/index.js";
 import { validate } from "../../middleware/validate.js";
 import { requireAuth } from "../../middleware/auth.js";
+import { AppError } from "../../middleware/errorHandler.js";
 import { clearAuthCookies, setAuthCookies } from "./cookies.js";
+import { createLoginThrottle } from "./loginThrottle.js";
 import {
   forgotPassword,
   login,
@@ -32,6 +34,7 @@ function refreshTokenFrom(req: Request): string | null {
 
 export function authRouter(db: Db): Router {
   const router = Router();
+  const loginThrottle = createLoginThrottle();
 
   router.post("/register", validate(registerSchema), async (req, res) => {
     const user = await register(db, req.body);
@@ -52,9 +55,19 @@ export function authRouter(db: Db): Router {
   });
 
   router.post("/login", validate(loginSchema), async (req, res) => {
-    const { user, tokens } = await login(db, req.body.email, req.body.password, requestMeta(req));
-    setAuthCookies(res, tokens);
-    res.json({ success: true, data: { user, accessToken: tokens.accessToken } });
+    const email = req.body.email as string;
+    loginThrottle.assertAllowed(email);
+    try {
+      const { user, tokens } = await login(db, email, req.body.password, requestMeta(req));
+      loginThrottle.recordSuccess(email);
+      setAuthCookies(res, tokens);
+      res.json({ success: true, data: { user, accessToken: tokens.accessToken } });
+    } catch (err) {
+      if (err instanceof AppError && err.code === "INVALID_CREDENTIALS") {
+        loginThrottle.recordFailure(email);
+      }
+      throw err;
+    }
   });
 
   router.post("/refresh", async (req, res) => {

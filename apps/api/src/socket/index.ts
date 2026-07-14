@@ -95,6 +95,13 @@ export function createSocketServer(db: Db): Server {
               heading: parsed.data.heading ?? null,
             });
           }
+          // Live ops map: relay every online driver's position to admins.
+          io.to("admins").emit("admin:driver_location", {
+            driverUserId: userId,
+            lat: parsed.data.lat,
+            lng: parsed.data.lng,
+            heading: parsed.data.heading ?? null,
+          });
         } catch (err) {
           logger.warn({ err, userId }, "location update failed");
         }

@@ -12,6 +12,8 @@ declare global {
   namespace Express {
     interface Request {
       user?: AuthedUser;
+      /** Correlation id set in app.ts and echoed as the x-request-id header. */
+      id?: string;
     }
   }
 }
