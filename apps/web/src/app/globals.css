@@ -3,11 +3,84 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+  RideX design language — "Kathmandu valley, in motion".
+  midnight = valley at night · crimson = flag/sindoor/temple red (signature)
+  marigold = Tihar garlands/brass · paper = warm daylight · jade = functional "online".
+*/
+:root {
+  --radius: 0.7rem;
+
+  /* Brand palette — RideX emerald/teal (the `crimson`/`midnight` names are kept
+     only as stable token keys; their VALUES are the green theme). */
+  --midnight: #06342c; /* deep emerald — dark surfaces (sidebar, footer, meters) */
+  --midnight-2: #0b4a3f;
+  --midnight-3: #12695a;
+  --crimson: #059669; /* emerald-600 — primary / CTA */
+  --crimson-ink: #047857; /* emerald-700 — hover */
+  --marigold: #f59e0b; /* amber — secondary accent */
+  --marigold-soft: #fde68a;
+  --paper: #f5faf8; /* clean near-white, faint emerald tint */
+  --paper-2: #e8f2ee;
+  --ink: #111827; /* gray-900 text (matches the previous theme) */
+  --jade: #10b981; /* emerald-500 — functional "online" */
+
+  /* shadcn token surface — remapped to the RideX palette */
+  --background: var(--paper);
+  --foreground: var(--ink);
+  --card: #ffffff;
+  --card-foreground: var(--ink);
+  --popover: #ffffff;
+  --popover-foreground: var(--ink);
+  --primary: var(--crimson);
+  --primary-foreground: #ffffff;
+  --secondary: var(--paper-2);
+  --secondary-foreground: var(--ink);
+  --muted: var(--paper-2);
+  --muted-foreground: #6b7280;
+  --accent: #ecfdf5;
+  --accent-foreground: var(--ink);
+  --destructive: #dc2626;
+  --border: #e3ebe8;
+  --input: #e3ebe8;
+  --ring: var(--crimson);
+  --chart-1: var(--crimson);
+  --chart-2: var(--marigold);
+  --chart-3: var(--midnight);
+  --chart-4: var(--jade);
+  --chart-5: #7c6cf0;
+  --sidebar: var(--midnight);
+  --sidebar-foreground: #cdd2ee;
+  --sidebar-primary: var(--crimson);
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: var(--midnight-2);
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: var(--crimson);
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --font-display: var(--font-display-face);
+  --font-sans: var(--font-sans-face);
+  --font-mono: var(--font-mono-face);
+  --font-deva: var(--font-deva-face);
+
+  /* Brand color utilities: bg-crimson, text-marigold, bg-midnight, … */
+  --color-midnight: var(--midnight);
+  --color-midnight-2: var(--midnight-2);
+  --color-midnight-3: var(--midnight-3);
+  --color-crimson: var(--crimson);
+  --color-crimson-ink: var(--crimson-ink);
+  --color-marigold: var(--marigold);
+  --color-marigold-soft: var(--marigold-soft);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-jade: var(--jade);
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -43,73 +116,25 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-:root {
-  --radius: 0.625rem;
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-}
-
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: var(--midnight);
+  --foreground: #f3f4fb;
+  --card: var(--midnight-2);
+  --card-foreground: #f3f4fb;
+  --popover: var(--midnight-2);
+  --popover-foreground: #f3f4fb;
+  --primary: var(--crimson);
+  --primary-foreground: #ffffff;
+  --secondary: var(--midnight-3);
+  --secondary-foreground: #f3f4fb;
+  --muted: var(--midnight-3);
+  --muted-foreground: #9aa0c4;
+  --accent: var(--midnight-3);
+  --accent-foreground: #f3f4fb;
+  --destructive: #ff5a6e;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.14);
+  --ring: var(--crimson);
 }
 
 @layer base {
@@ -118,5 +143,55 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv01";
+  }
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display), system-ui, sans-serif;
+  }
+}
+
+@layer utilities {
+  /* Devanagari script accents (राइडएक्स) */
+  .font-deva {
+    font-family: var(--font-deva), var(--font-sans), sans-serif;
+  }
+  /* Tabular numerics for fares / meters / plates */
+  .tnum {
+    font-family: var(--font-mono), monospace;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  /* Valley contour texture for dark hero backgrounds */
+  .bg-contours {
+    background-image:
+      radial-gradient(120% 90% at 85% -10%, rgba(245, 158, 11, 0.14), transparent 55%),
+      radial-gradient(90% 80% at 0% 110%, rgba(16, 185, 129, 0.22), transparent 55%),
+      repeating-linear-gradient(
+        115deg,
+        rgba(255, 255, 255, 0.035) 0px,
+        rgba(255, 255, 255, 0.035) 1px,
+        transparent 1px,
+        transparent 22px
+      );
+  }
+  /* The dashed route line of the signature "ticket" motif */
+  .route-dash {
+    background-image: linear-gradient(
+      to bottom,
+      var(--tw-gradient-stops, currentColor 0 100%)
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }

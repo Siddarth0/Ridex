@@ -68,10 +68,10 @@ function VerifyEmailContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-midnight flex items-center justify-center px-4">
       <div className="w-full max-w-lg bg-white/95 backdrop-blur rounded-2xl shadow-xl p-8">
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+          <div className="w-16 h-16 bg-crimson rounded-xl flex items-center justify-center shadow-lg">
             <Image src="/ridexlogo.png" alt="RideX" width={36} height={36} />
           </div>
         </div>
@@ -89,7 +89,7 @@ function VerifyEmailContent() {
             </p>
             <div className="flex items-center justify-center gap-3">
               <Button
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-crimson hover:bg-crimson-ink"
                 onClick={handleResend}
                 disabled={resending}
               >

@@ -197,8 +197,8 @@ export default function AnalyticsPage() {
         <Card className="border-0 shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-emerald-100 rounded-lg flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-emerald-600" />
+              <div className="w-12 h-12 bg-crimson/10 rounded-lg flex items-center justify-center">
+                <DollarSign className="w-6 h-6 text-crimson" />
               </div>
               <div className={`flex items-center space-x-1 ${getTrendColor(metrics.avgFare.trend)}`}>
                 {getTrendIcon(metrics.avgFare.trend)}
@@ -215,8 +215,8 @@ export default function AnalyticsPage() {
         <Card className="border-0 shadow-lg">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="w-12 h-12 bg-teal-100 rounded-lg flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-teal-600" />
+              <div className="w-12 h-12 bg-crimson/10 rounded-lg flex items-center justify-center">
+                <BarChart3 className="w-6 h-6 text-crimson" />
               </div>
               <div className={`flex items-center space-x-1 ${getTrendColor(metrics.completionRate.trend)}`}>
                 {getTrendIcon(metrics.completionRate.trend)}
@@ -249,7 +249,7 @@ export default function AnalyticsPage() {
                     <div className="flex-1">
                       <div className="w-full bg-gray-200 rounded-full h-2">
                         <div
-                          className="bg-emerald-600 h-2 rounded-full"
+                          className="bg-crimson h-2 rounded-full"
                           style={{ width: `${(day.revenue / Math.max(...revenueData.map((d) => d.revenue))) * 100}%` }}
                         ></div>
                       </div>
@@ -278,7 +278,7 @@ export default function AnalyticsPage() {
               {topDrivers.map((driver, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-crimson rounded-full flex items-center justify-center">
                       <span className="text-white text-sm font-semibold">{index + 1}</span>
                     </div>
                     <div>
@@ -363,7 +363,7 @@ export default function AnalyticsPage() {
                       <div className="flex-1">
                         <div className="w-full bg-gray-200 rounded-full h-1.5">
                           <div
-                            className="bg-emerald-600 h-1.5 rounded-full"
+                            className="bg-crimson h-1.5 rounded-full"
                             style={{
                               width: `${(hour.drivers / Math.max(...hourlyData.map((h) => h.drivers))) * 100}%`,
                             }}
@@ -374,7 +374,7 @@ export default function AnalyticsPage() {
                   </div>
                   <div className="flex space-x-4 text-xs">
                     <span className="text-blue-600">{hour.rides}R</span>
-                    <span className="text-emerald-600">{hour.drivers}D</span>
+                    <span className="text-crimson">{hour.drivers}D</span>
                   </div>
                 </div>
               ))}
@@ -385,7 +385,7 @@ export default function AnalyticsPage() {
                 <span className="text-sm text-gray-600">Rides</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-emerald-600 rounded-full"></div>
+                <div className="w-3 h-3 bg-crimson rounded-full"></div>
                 <span className="text-sm text-gray-600">Drivers</span>
               </div>
             </div>

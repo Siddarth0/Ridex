@@ -7,8 +7,6 @@ import { getSocket } from "@/lib/socket"
 import { toast } from "sonner"
 import { RideMap } from "@/components/ride-map"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft, Bike, Car, Crown, LoaderCircle, LocateFixed, MapPin, Phone, Star, X } from "lucide-react"
 
@@ -62,6 +60,10 @@ const STATUS_COPY: Record<string, string> = {
   in_progress: "Enjoy the ride",
   completed: "Ride completed",
 }
+
+// pickup = crimson dot, destination = midnight square (matches the route-ticket spine)
+const PICKUP_ACCENT = "#ee2e45"
+const DEST_ACCENT = "#0c1024"
 
 function LocationField({
   placeholder,
@@ -119,13 +121,13 @@ function LocationField({
   return (
     <div className="relative">
       <span
-        className="absolute left-3 top-1/2 -translate-y-1/2 w-2.5 h-2.5 rounded-full z-10"
+        className="absolute left-3 top-1/2 z-10 h-2.5 w-2.5 -translate-y-1/2 rounded-full"
         style={{ background: accent }}
       />
       <Input
         value={text}
         placeholder={placeholder}
-        className="pl-8 h-11 bg-white"
+        className="h-11 bg-paper pl-8"
         autoComplete="off"
         onChange={(e) => search(e.target.value)}
         onFocus={() => suggestions.length > 0 && setOpen(true)}
@@ -139,10 +141,10 @@ function LocationField({
       {showDropdown && (
         // Opens upward: the panel sits at the bottom of the screen, so a
         // downward dropdown would be clipped by the viewport edge.
-        <div className="absolute bottom-full mb-1 z-30 w-full bg-white rounded-md border shadow-lg max-h-56 overflow-auto">
+        <div className="absolute bottom-full z-30 mb-1 max-h-56 w-full overflow-auto rounded-xl border border-border bg-white shadow-lg">
           {loading && (
-            <div className="px-3 py-2.5 text-sm text-gray-500 flex items-center">
-              <LoaderCircle className="w-4 h-4 mr-2 animate-spin" /> Searching…
+            <div className="flex items-center px-3 py-2.5 text-sm text-muted-foreground">
+              <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> Searching…
             </div>
           )}
           {!loading &&
@@ -150,7 +152,7 @@ function LocationField({
               <button
                 key={i}
                 type="button"
-                className="w-full text-left px-3 py-2 text-sm hover:bg-emerald-50"
+                className="w-full px-3 py-2 text-left text-sm hover:bg-crimson/5"
                 onMouseDown={() => {
                   onPick({ address: s.address || s.name, coordinates: s.coordinates })
                   setEdited(null)
@@ -158,14 +160,14 @@ function LocationField({
                   setOpen(false)
                 }}
               >
-                <span className="font-medium">{s.name}</span>
+                <span className="font-medium text-ink">{s.name}</span>
                 {s.address && s.address !== s.name && (
-                  <span className="text-gray-500 block text-xs">{s.address}</span>
+                  <span className="block text-xs text-muted-foreground">{s.address}</span>
                 )}
               </button>
             ))}
           {!loading && searched && suggestions.length === 0 && (
-            <div className="px-3 py-2.5 text-sm text-gray-500">
+            <div className="px-3 py-2.5 text-sm text-muted-foreground">
               No matches — drop a pin on the map instead.
             </div>
           )}
@@ -398,8 +400,8 @@ export default function BookRidePage() {
 
   if (!checked) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">Loading…</p>
+      <div className="flex min-h-screen items-center justify-center bg-paper">
+        <p className="tnum text-sm text-muted-foreground">loading…</p>
       </div>
     )
   }
@@ -410,7 +412,7 @@ export default function BookRidePage() {
   const mapDest = ride ? ride.destination.coordinates : (destination?.coordinates ?? null)
 
   return (
-    <div className="h-screen w-screen relative overflow-hidden bg-gray-100">
+    <div className="relative h-screen w-screen overflow-hidden bg-midnight">
       <RideMap
         pickup={mapPickup}
         destination={mapDest}
@@ -424,47 +426,46 @@ export default function BookRidePage() {
       />
 
       {/* Top bar */}
-      <div className="absolute top-4 left-4 right-4 z-10 flex items-center justify-between">
+      <div className="absolute left-4 right-4 top-4 z-10 flex items-center justify-between">
         <Link href="/dashboard">
-          <Button variant="secondary" size="sm" className="shadow-md">
-            <ArrowLeft className="w-4 h-4 mr-1" /> Back
+          <Button variant="secondary" size="sm" className="bg-white text-ink shadow-md hover:bg-white/90">
+            <ArrowLeft className="mr-1 h-4 w-4" /> Back
           </Button>
         </Link>
         {showRide && (
-          <Badge className="bg-emerald-600 text-white hover:bg-emerald-600 shadow-md px-3 py-1.5">
+          <div className="rounded-full bg-midnight/90 px-4 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur">
             {STATUS_COPY[phase] ?? phase}
-          </Badge>
+          </div>
         )}
       </div>
 
-      {/* Bottom panel — lifted off the very bottom edge so the search
-          dropdown and content stay clear of the browser chrome */}
-      <div className="absolute bottom-4 left-0 right-0 z-10 px-4 md:max-w-md md:left-4 md:right-auto md:w-96">
-        <Card className="shadow-2xl border-0">
-          <CardContent className="p-4 space-y-3">
+      {/* Bottom panel */}
+      <div className="absolute bottom-4 left-0 right-0 z-10 px-4 md:left-4 md:right-auto md:w-96 md:max-w-md">
+        <div className="rounded-3xl bg-white shadow-2xl">
+          <div className="space-y-3 p-5">
             {!showRide && (
               <>
-                <h2 className="font-semibold text-gray-900">Where to?</h2>
-                <LocationField placeholder="Pickup location" value={pickup} onPick={setPickup} accent="#059669" />
-                <LocationField placeholder="Destination" value={destination} onPick={setDestination} accent="#dc2626" />
+                <h2 className="font-display text-xl font-bold text-ink">Where to?</h2>
+                <LocationField placeholder="Pickup — landmark or area" value={pickup} onPick={setPickup} accent={PICKUP_ACCENT} />
+                <LocationField placeholder="Destination" value={destination} onPick={setDestination} accent={DEST_ACCENT} />
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-gray-500 flex items-center">
-                    <MapPin className="w-3.5 h-3.5 mr-1" />
-                    Tap the map to set {pickup ? "destination" : "pickup"}, or drag the pins.
+                  <p className="flex items-center text-xs text-muted-foreground">
+                    <MapPin className="mr-1 h-3.5 w-3.5" />
+                    Tap the map to set {pickup ? "destination" : "pickup"}.
                   </p>
                   <button
                     type="button"
                     onClick={() => locateMe(false)}
                     disabled={locating}
-                    className="text-xs font-medium text-emerald-600 hover:text-emerald-700 flex items-center shrink-0 disabled:opacity-60"
+                    className="flex shrink-0 items-center text-xs font-semibold text-crimson hover:text-crimson-ink disabled:opacity-60"
                   >
-                    <LocateFixed className={`w-3.5 h-3.5 mr-1 ${locating ? "animate-spin" : ""}`} />
+                    <LocateFixed className={`mr-1 h-3.5 w-3.5 ${locating ? "animate-spin" : ""}`} />
                     {locating ? "Locating…" : "Use my location"}
                   </button>
                 </div>
 
                 {visibleEstimate && (
-                  <div className="space-y-2 pt-1">
+                  <div className="space-y-3 pt-1">
                     <div className="grid grid-cols-3 gap-2">
                       {visibleEstimate.estimates.map((e) => {
                         const Meta = RIDE_TYPE_META[e.rideType]
@@ -474,31 +475,27 @@ export default function BookRidePage() {
                             key={e.rideType}
                             type="button"
                             onClick={() => setSelectedType(e.rideType)}
-                            className={`rounded-lg border p-2.5 text-center transition ${
-                              active ? "border-emerald-600 bg-emerald-50" : "border-gray-200 hover:border-gray-300"
+                            className={`rounded-xl border p-2.5 text-center transition ${
+                              active ? "border-crimson bg-crimson/5" : "border-border hover:border-ink/20"
                             }`}
                           >
-                            <Meta.icon
-                              className={`w-5 h-5 mx-auto mb-1 ${active ? "text-emerald-600" : "text-gray-500"}`}
-                            />
-                            <p className="text-xs font-medium">{Meta.label}</p>
-                            <p className="text-sm font-bold">
-                              {e.currency} {e.estimatedFare}
-                            </p>
+                            <Meta.icon className={`mx-auto mb-1 h-5 w-5 ${active ? "text-crimson" : "text-muted-foreground"}`} />
+                            <p className="text-xs font-medium text-ink">{Meta.label}</p>
+                            <p className="tnum text-sm font-bold text-ink">रु {e.estimatedFare}</p>
                           </button>
                         )
                       })}
                     </div>
-                    <p className="text-xs text-gray-500">
+                    <p className="tnum text-xs text-muted-foreground">
                       {(visibleEstimate.distanceM / 1000).toFixed(1)} km · ~{Math.round(visibleEstimate.durationS / 60)} min · cash
                     </p>
                     <Button
-                      className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-base"
+                      className="h-12 w-full bg-crimson text-base hover:bg-crimson-ink"
                       disabled={requesting}
                       onClick={requestRide}
                     >
                       {requesting ? (
-                        <LoaderCircle className="w-5 h-5 animate-spin" />
+                        <LoaderCircle className="h-5 w-5 animate-spin" />
                       ) : (
                         `Request ${RIDE_TYPE_META[selectedType].label}`
                       )}
@@ -509,51 +506,62 @@ export default function BookRidePage() {
             )}
 
             {showRide && phase === "searching" && (
-              <div className="text-center py-4 space-y-3">
-                <LoaderCircle className="w-10 h-10 text-emerald-600 animate-spin mx-auto" />
-                <p className="font-medium text-gray-900">Finding nearby drivers…</p>
-                <p className="text-sm text-gray-500">
+              <div className="space-y-3 py-4 text-center">
+                <LoaderCircle className="mx-auto h-10 w-10 animate-spin text-crimson" />
+                <p className="font-display font-bold text-ink">Finding nearby drivers…</p>
+                <p className="text-sm text-muted-foreground">
                   {ride.pickup.address} → {ride.destination.address}
                 </p>
-                <Button variant="outline" className="text-red-600 border-red-200" onClick={cancelRide}>
-                  <X className="w-4 h-4 mr-1" /> Cancel
+                <Button
+                  variant="outline"
+                  className="border-destructive/30 text-destructive hover:bg-destructive/5"
+                  onClick={cancelRide}
+                >
+                  <X className="mr-1 h-4 w-4" /> Cancel
                 </Button>
               </div>
             )}
 
             {showRide && ["accepted", "arrived", "in_progress"].includes(phase) && ride.driver && (
               <div className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center text-white font-semibold">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-full bg-crimson font-display font-bold text-white">
                     {ride.driver.firstName[0]}
                     {ride.driver.lastName[0]}
-                  </div>
+                  </span>
                   <div className="flex-1">
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-semibold text-ink">
                       {ride.driver.firstName} {ride.driver.lastName}
                     </p>
-                    <p className="text-sm text-gray-500 flex items-center">
-                      <Star className="w-3.5 h-3.5 text-yellow-500 mr-1" />
-                      {ride.driver.ratingAvg ?? "New"} · {ride.vehicle?.make} {ride.vehicle?.model}
+                    <p className="flex items-center text-sm text-muted-foreground">
+                      <Star className="mr-1 h-3.5 w-3.5 text-marigold" />
+                      <span className="tnum">{ride.driver.ratingAvg ?? "New"}</span> · {ride.vehicle?.make} {ride.vehicle?.model}
                     </p>
                   </div>
                   <a href={`tel:${ride.driver.phone}`}>
-                    <Button size="sm" variant="outline">
-                      <Phone className="w-4 h-4" />
+                    <Button size="sm" variant="outline" className="border-border">
+                      <Phone className="h-4 w-4" />
                     </Button>
                   </a>
                 </div>
                 {ride.vehicle && (
-                  <div className="bg-gray-50 rounded-lg p-3 text-center">
-                    <p className="text-lg font-bold tracking-wider">{ride.vehicle.plateNumber}</p>
-                    <p className="text-xs text-gray-500">{ride.vehicle.color ?? ""}</p>
+                  <div className="flex items-center justify-between rounded-xl bg-midnight px-4 py-2.5">
+                    <span className="text-xs text-white/60">Number plate</span>
+                    <span className="tnum text-lg font-bold tracking-wider text-marigold">
+                      {ride.vehicle.plateNumber}
+                    </span>
                   </div>
                 )}
-                <p className="text-sm text-gray-600">
-                  Estimated fare: <b>{ride.currency} {ride.estimatedFare}</b> (cash)
-                </p>
+                <div className="flex items-center justify-between rounded-xl bg-paper px-4 py-2.5">
+                  <span className="text-xs text-muted-foreground">Estimated fare · cash</span>
+                  <span className="tnum text-lg font-bold text-ink">रु {ride.estimatedFare}</span>
+                </div>
                 {phase !== "in_progress" && (
-                  <Button variant="outline" className="w-full text-red-600 border-red-200" onClick={cancelRide}>
+                  <Button
+                    variant="outline"
+                    className="w-full border-destructive/30 text-destructive hover:bg-destructive/5"
+                    onClick={cancelRide}
+                  >
                     Cancel ride
                   </Button>
                 )}
@@ -561,18 +569,18 @@ export default function BookRidePage() {
             )}
 
             {showRide && phase === "completed" && (
-              <div className="text-center space-y-3 py-2">
-                <p className="text-2xl">🎉</p>
-                <p className="font-semibold text-gray-900">Ride completed</p>
-                <p className="text-3xl font-bold text-emerald-600">
-                  {ride.currency} {ride.finalFare}
-                </p>
-                <p className="text-sm text-gray-500">Pay your driver in cash</p>
-                <div className="flex justify-center space-x-1 py-1">
+              <div className="space-y-3 py-2 text-center">
+                <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-jade/12 text-jade">
+                  <Star className="h-6 w-6 fill-jade" />
+                </span>
+                <p className="font-display font-bold text-ink">Ride completed</p>
+                <p className="tnum text-4xl font-bold text-crimson">रु {ride.finalFare}</p>
+                <p className="text-sm text-muted-foreground">Pay your driver in cash</p>
+                <div className="flex justify-center gap-1 py-1">
                   {[1, 2, 3, 4, 5].map((n) => (
                     <button key={n} type="button" onClick={() => setRatingScore(n)}>
                       <Star
-                        className={`w-8 h-8 ${n <= ratingScore ? "text-yellow-400 fill-yellow-400" : "text-gray-300"}`}
+                        className={`h-8 w-8 ${n <= ratingScore ? "fill-marigold text-marigold" : "text-border"}`}
                       />
                     </button>
                   ))}
@@ -580,7 +588,7 @@ export default function BookRidePage() {
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    className="flex-1"
+                    className="flex-1 border-border"
                     onClick={() => {
                       setRide(null)
                       setDriverPos(null)
@@ -591,7 +599,7 @@ export default function BookRidePage() {
                     Skip
                   </Button>
                   <Button
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700"
+                    className="flex-1 bg-crimson hover:bg-crimson-ink"
                     disabled={ratingScore === 0}
                     onClick={submitRating}
                   >
@@ -602,12 +610,12 @@ export default function BookRidePage() {
             )}
 
             {showRide && ["cancelled", "expired"].includes(phase) && (
-              <div className="text-center py-3 space-y-3">
-                <p className="font-medium text-gray-900">
+              <div className="space-y-3 py-3 text-center">
+                <p className="font-display font-bold text-ink">
                   {phase === "expired" ? "No drivers found" : "Ride cancelled"}
                 </p>
                 <Button
-                  className="bg-emerald-600 hover:bg-emerald-700"
+                  className="bg-crimson hover:bg-crimson-ink"
                   onClick={() => {
                     setRide(null)
                     setDriverPos(null)
@@ -617,8 +625,8 @@ export default function BookRidePage() {
                 </Button>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )

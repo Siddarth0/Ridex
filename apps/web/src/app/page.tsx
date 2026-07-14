@@ -18,7 +18,6 @@ import {
   CreditCard,
   Menu,
   X,
-  Globe
 } from "lucide-react"
 
 export default function LandingPage() {
@@ -28,55 +27,55 @@ export default function LandingPage() {
   const features = [
     {
       icon: <Clock className="w-8 h-8" />,
-      title: "Quick Booking",
-      description: "Book a ride in under 30 seconds with our intuitive app",
+      title: "Book in seconds",
+      description: "Drop a pin or name a landmark — a bike or car is only a few taps away.",
     },
     {
       icon: <Shield className="w-8 h-8" />,
-      title: "Safe & Secure",
-      description: "All drivers are verified with background checks and real-time tracking",
+      title: "Verified drivers",
+      description: "Every driver clears licence and document checks before they can take a ride.",
     },
     {
       icon: <CreditCard className="w-8 h-8" />,
-      title: "Cashless Payment",
-      description: "Pay seamlessly with cards, digital wallets, or ride credits",
+      title: "Cash-first fares",
+      description: "Pay your driver in NPR. See the fare before you book — eSewa & Khalti coming soon.",
     },
     {
       icon: <Star className="w-8 h-8" />,
-      title: "Top Rated",
-      description: "4.9/5 average rating from over 100k satisfied customers",
+      title: "Rated every ride",
+      description: "Riders and drivers rate each other after every trip, so quality stays high.",
     },
   ]
 
   const testimonials = [
     {
-      name: "Sarah Johnson",
-      role: "Daily Commuter",
-      image: "/placeholder.svg?height=60&width=60&text=SJ",
+      name: "Anisha Shrestha",
+      role: "Rider · Baneshwor",
+      initials: "AS",
       rating: 5,
-      text: "RideX has transformed my daily commute. Always reliable, safe, and affordable!",
+      text: "I set the pin at my gali and a bike was there in four minutes. The fare was exactly what it said.",
     },
     {
-      name: "Mike Chen",
-      role: "Business Traveler",
-      image: "/placeholder.svg?height=60&width=60&text=MC",
+      name: "Bibek Gurung",
+      role: "Driver · Lalitpur",
+      initials: "BG",
       rating: 5,
-      text: "Perfect for business trips. Professional drivers and always on time.",
+      text: "Offers come to me one at a time — no fighting over pings. I keep the cash and settle commission weekly.",
     },
     {
-      name: "Emily Davis",
-      role: "Student",
-      image: "/placeholder.svg?height=60&width=60&text=ED",
+      name: "Prakash Tamang",
+      role: "Rider · Chabahil",
+      initials: "PT",
       rating: 5,
-      text: "Great prices for students! The app is super easy to use.",
+      text: "Booked a car for the family to the airport. Tracked the whole way, and the driver knew the shortcut.",
     },
   ]
 
   const stats = [
-    { number: "1M+", label: "Happy Riders", icon: <Users className="w-6 h-6" /> },
-    { number: "50K+", label: "Trusted Drivers", icon: <Car className="w-6 h-6" /> },
-    { number: "100+", label: "Cities Covered", icon: <Globe className="w-6 h-6" /> },
-    { number: "4.9★", label: "Average Rating", icon: <Star className="w-6 h-6" /> },
+    { number: "रु30", label: "Bike fares from", icon: <Car className="w-6 h-6" /> },
+    { number: "Cash", label: "Pay in NPR", icon: <CreditCard className="w-6 h-6" /> },
+    { number: "KYC", label: "Verified drivers", icon: <Shield className="w-6 h-6" /> },
+    { number: "Live", label: "Real-time tracking", icon: <MapPin className="w-6 h-6" /> },
   ]
 
   useEffect(() => {
@@ -204,15 +203,15 @@ export default function LandingPage() {
               <div className="space-y-6">
                 <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 px-4 py-2">
                   <Star className="w-4 h-4 mr-2" />
-                  #1 Ride Sharing App
+                  Built for the Kathmandu valley
                 </Badge>
                 <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                   Your Journey,
                   <span className="text-emerald-600 block">Our Priority</span>
                 </h1>
                 <p className="text-xl text-gray-600 leading-relaxed">
-                  Experience the future of transportation with RideX. Safe, reliable, and affordable rides at your
-                  fingertips. Join millions of satisfied riders today.
+                  Book a bike or car across the valley in seconds. Cash-first, landmark-friendly, and driven by
+                  riders you can trust.
                 </p>
               </div>
 
@@ -270,15 +269,15 @@ export default function LandingPage() {
                       <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                         <MapPin className="w-5 h-5 text-emerald-600" />
                         <div className="flex-1">
-                          <p className="text-sm font-medium">From: Your Location</p>
-                          <p className="text-xs text-gray-500">123 Main Street</p>
+                          <p className="text-sm font-medium">Pickup: Thamel</p>
+                          <p className="text-xs text-gray-500">near Kathmandu Guest House</p>
                         </div>
                       </div>
                       <div className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
                         <MapPin className="w-5 h-5 text-red-500" />
                         <div className="flex-1">
-                          <p className="text-sm font-medium">To: Destination</p>
-                          <p className="text-xs text-gray-500">456 Oak Avenue</p>
+                          <p className="text-sm font-medium">Drop-off: Patan Durbar Square</p>
+                          <p className="text-xs text-gray-500">Mangal Bazaar gate</p>
                         </div>
                       </div>
                     </div>
@@ -286,18 +285,18 @@ export default function LandingPage() {
                     <div className="grid grid-cols-3 gap-3">
                       <div className="text-center p-3 bg-emerald-50 rounded-lg">
                         <Car className="w-6 h-6 text-emerald-600 mx-auto mb-1" />
-                        <p className="text-xs font-medium">Economy</p>
-                        <p className="text-xs text-gray-600">$12</p>
+                        <p className="text-xs font-medium">Bike</p>
+                        <p className="text-xs text-gray-600">रु168</p>
+                      </div>
+                      <div className="text-center p-3 bg-gray-50 rounded-lg">
+                        <Car className="w-6 h-6 text-gray-600 mx-auto mb-1" />
+                        <p className="text-xs font-medium">Car</p>
+                        <p className="text-xs text-gray-600">रु340</p>
                       </div>
                       <div className="text-center p-3 bg-gray-50 rounded-lg">
                         <Car className="w-6 h-6 text-gray-600 mx-auto mb-1" />
                         <p className="text-xs font-medium">Premium</p>
-                        <p className="text-xs text-gray-600">$18</p>
-                      </div>
-                      <div className="text-center p-3 bg-gray-50 rounded-lg">
-                        <Car className="w-6 h-6 text-gray-600 mx-auto mb-1" />
-                        <p className="text-xs font-medium">Luxury</p>
-                        <p className="text-xs text-gray-600">$25</p>
+                        <p className="text-xs text-gray-600">रु560</p>
                       </div>
                     </div>
 
@@ -395,8 +394,8 @@ export default function LandingPage() {
       <section className="py-20 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">What Our Riders Say</h2>
-            <p className="text-xl text-gray-600">Join thousands of satisfied customers</p>
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">From the valley</h2>
+            <p className="text-xl text-gray-600">Riders and drivers, in their own words</p>
           </div>
 
           <div className="max-w-4xl mx-auto">
@@ -411,13 +410,9 @@ export default function LandingPage() {
                   &ldquo;{testimonials[activeTestimonial].text}&rdquo;
                 </blockquote>
                 <div className="flex items-center justify-center space-x-4">
-                  <Image
-                    src={testimonials[activeTestimonial].image || "/placeholder.svg"}
-                    alt={testimonials[activeTestimonial].name}
-                    width={60}
-                    height={60}
-                    className="rounded-full"
-                  />
+                  <div className="w-[60px] h-[60px] rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold text-lg">
+                    {testimonials[activeTestimonial].initials}
+                  </div>
                   <div className="text-left">
                     <p className="font-semibold text-gray-900">{testimonials[activeTestimonial].name}</p>
                     <p className="text-gray-600">{testimonials[activeTestimonial].role}</p>
@@ -448,7 +443,7 @@ export default function LandingPage() {
           <div className="max-w-3xl mx-auto">
             <h2 className="text-4xl font-bold text-white mb-6">Ready to Start Your Journey?</h2>
             <p className="text-xl text-emerald-100 mb-8">
-              Join millions of riders who trust RideX for their daily transportation needs.
+              Create an account and book your first bike or car across the Kathmandu valley today.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/register">
@@ -483,7 +478,7 @@ export default function LandingPage() {
                 </div>
                 <span className="text-2xl font-bold">RideX</span>
               </div>
-              <p className="text-gray-400">Your trusted partner for safe, reliable, and affordable transportation.</p>
+              <p className="text-gray-400">Ride-hailing built for the Kathmandu valley — bikes and cars, cash-first, landmark-friendly.</p>
               <div className="flex space-x-4">
                 <div className="w-10 h-10 bg-gray-800 rounded-full flex items-center justify-center hover:bg-emerald-600 transition-colors cursor-pointer">
                   <span className="text-sm">f</span>
@@ -555,15 +550,15 @@ export default function LandingPage() {
             <div>
               <h3 className="text-lg font-semibold mb-4">Get in Touch</h3>
               <div className="space-y-2 text-gray-400">
-                <p>📧 support@ridex.com</p>
-                <p>📞 +1 (555) 123-4567</p>
-                <p>📍 123 Tech Street, Silicon Valley</p>
+                <p>📧 support@ridex.com.np</p>
+                <p>📞 +977 1 4000000</p>
+                <p>📍 Pulchowk, Lalitpur</p>
               </div>
             </div>
           </div>
 
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 RideX. All rights reserved.</p>
+            <p>&copy; 2026 RideX. Made in Kathmandu.</p>
           </div>
         </div>
       </footer>

@@ -64,6 +64,7 @@ interface DriverDetail extends AdminDriver {
     originalName: string | null
     createdAt: string
   }[]
+  balance: { payout: number; commission: number; adjustment: number; balance: number }
 }
 
 const statusBadge = (status: string) => {
@@ -125,14 +126,20 @@ export default function DriversPage() {
     }
   }
 
-  const act = async (id: string, action: "approve" | "reject") => {
+  const act = async (id: string, action: "approve" | "reject" | "suspend" | "reactivate") => {
     try {
       setActing(true)
       await api.post(
         `/admin/drivers/${id}/${action}`,
         action === "reject" ? { reason: rejectReason } : {},
       )
-      toast.success(action === "approve" ? "Driver approved ✅" : "Driver rejected")
+      const msg: Record<typeof action, string> = {
+        approve: "Driver approved ✅",
+        reject: "Driver rejected",
+        suspend: "Driver suspended",
+        reactivate: "Driver reactivated",
+      }
+      toast.success(msg[action])
       setSelected(null)
       setRefreshKey((k) => k + 1)
     } catch (error) {
@@ -241,7 +248,7 @@ export default function DriversPage() {
                 <div key={driver.id} className="p-6 bg-gray-50 rounded-lg">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-emerald-600 rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-crimson rounded-full flex items-center justify-center">
                         <span className="text-white font-semibold">
                           {driver.user.firstName[0]}
                           {driver.user.lastName[0]}
@@ -254,7 +261,7 @@ export default function DriversPage() {
                           </h3>
                           {statusBadge(driver.status)}
                           {driver.isOnline && (
-                            <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100">Online</Badge>
+                            <Badge className="bg-jade/12 text-jade hover:bg-jade/12">Online</Badge>
                           )}
                         </div>
                         <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600">
@@ -337,7 +344,7 @@ export default function DriversPage() {
                             {doc.type} — {doc.originalName ?? "file"}
                           </span>
                           <a
-                            className="text-emerald-600 hover:underline"
+                            className="text-crimson hover:underline"
                             href={`/api/admin/drivers/${selected.id}/documents/${doc.id}/download`}
                             target="_blank"
                             rel="noreferrer"
@@ -348,6 +355,31 @@ export default function DriversPage() {
                       ))}
                     </ul>
                   )}
+                </div>
+
+                <div className="grid grid-cols-3 gap-3 border-t pt-4">
+                  <div>
+                    <p className="text-xs text-gray-500">Payout</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      NPR {selected.balance.payout.toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Commission owed</p>
+                    <p className="text-sm font-semibold text-gray-900">
+                      NPR {selected.balance.commission.toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">Net balance</p>
+                    <p
+                      className={`text-sm font-semibold ${
+                        selected.balance.balance < 0 ? "text-red-600" : "text-crimson"
+                      }`}
+                    >
+                      NPR {selected.balance.balance.toFixed(2)}
+                    </p>
+                  </div>
                 </div>
 
                 {selected.status === "pending" && (
@@ -368,7 +400,7 @@ export default function DriversPage() {
                         Reject
                       </Button>
                       <Button
-                        className="bg-emerald-600 hover:bg-emerald-700"
+                        className="bg-crimson hover:bg-crimson-ink"
                         disabled={acting}
                         onClick={() => act(selected.id, "approve")}
                       >
@@ -376,6 +408,33 @@ export default function DriversPage() {
                         Approve
                       </Button>
                     </div>
+                  </div>
+                )}
+
+                {selected.status === "approved" && (
+                  <div className="flex justify-end border-t pt-4">
+                    <Button
+                      variant="outline"
+                      className="text-red-600 border-red-200 hover:bg-red-50"
+                      disabled={acting}
+                      onClick={() => act(selected.id, "suspend")}
+                    >
+                      <AlertTriangle className="w-4 h-4 mr-2" />
+                      Suspend driver
+                    </Button>
+                  </div>
+                )}
+
+                {selected.status === "suspended" && (
+                  <div className="flex justify-end border-t pt-4">
+                    <Button
+                      className="bg-crimson hover:bg-crimson-ink"
+                      disabled={acting}
+                      onClick={() => act(selected.id, "reactivate")}
+                    >
+                      <CheckCircle className="w-4 h-4 mr-2" />
+                      Reactivate driver
+                    </Button>
                   </div>
                 )}
               </div>

@@ -73,7 +73,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="flex min-h-screen">
         {/* Left Side - Hero Section */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 relative overflow-hidden">
+        <div className="hidden lg:flex lg:w-1/2 bg-midnight relative overflow-hidden">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-20 left-20 w-32 h-32 bg-white rounded-full"></div>
@@ -98,16 +98,16 @@ export default function LoginPage() {
                 </div>
                 <h1 className="text-3xl font-bold">RideX</h1>
               </div>
-              <p className="text-emerald-100 text-lg">Welcome back to your journey</p>
+              <p className="text-white/80 text-lg">Welcome back to your journey</p>
             </div>
 
             {/* Main Content */}
             <div className="mb-12">
               <h2 className="text-4xl font-bold mb-6 leading-tight">
                 Ready to
-                <span className="block text-emerald-200">Hit the Road?</span>
+                <span className="block text-white/70">Hit the Road?</span>
               </h2>
-              <p className="text-xl text-emerald-100 mb-8 leading-relaxed">
+              <p className="text-xl text-white/80 mb-8 leading-relaxed">
                 Sign in to access your rides, track your trips, and connect with our trusted driver community.
               </p>
             </div>
@@ -116,31 +116,31 @@ export default function LoginPage() {
             <div className="space-y-6">
               {features.map((feature, index) => (
                 <div key={index} className="flex items-start space-x-4">
-                  <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-crimson/50 rounded-lg flex items-center justify-center flex-shrink-0">
                     {feature.icon}
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg mb-1">{feature.title}</h3>
-                    <p className="text-emerald-100 text-sm">{feature.description}</p>
+                    <p className="text-white/80 text-sm">{feature.description}</p>
                   </div>
                 </div>
               ))}
             </div>
 
             {/* Recent Activity */}
-            <div className="mt-12 bg-emerald-500/20 rounded-lg p-6">
+            <div className="mt-12 bg-crimson/50/20 rounded-lg p-6">
               <h3 className="font-semibold text-lg mb-4">Recent Activity</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-emerald-100">Active riders today</span>
+                  <span className="text-white/80">Active riders today</span>
                   <span className="font-bold">2,847</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-emerald-100">Completed rides</span>
+                  <span className="text-white/80">Completed rides</span>
                   <span className="font-bold">15,632</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-emerald-100">Average rating</span>
+                  <span className="text-white/80">Average rating</span>
                   <div className="flex items-center">
                     <span className="font-bold mr-1">4.9</span>
                     <Star className="w-4 h-4 fill-current" />
@@ -200,7 +200,7 @@ export default function LoginPage() {
                     id="email"
                     type="email"
                     placeholder="you@example.com"
-                    className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                    className="h-12 border-gray-200 focus:border-crimson focus:ring-crimson"
                     {...formik.getFieldProps("email")}
                   />
                   {formik.touched.email && formik.errors.email && (
@@ -216,7 +216,7 @@ export default function LoginPage() {
                     </Label>
                     <Link
                       href="/forgot-password"
-                      className="text-sm text-emerald-600 hover:text-emerald-700 transition-colors"
+                      className="text-sm text-crimson hover:text-crimson transition-colors"
                     >
                       Forgot password?
                     </Link>
@@ -226,7 +226,7 @@ export default function LoginPage() {
                       id="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
-                      className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500 pr-12"
+                      className="h-12 border-gray-200 focus:border-crimson focus:ring-crimson pr-12"
                       {...formik.getFieldProps("password")}
                     />
                     <button
@@ -247,7 +247,7 @@ export default function LoginPage() {
                   <input
                     type="checkbox"
                     id="remember"
-                    className="w-4 h-4 text-emerald-600 border-gray-300 rounded focus:ring-emerald-500"
+                    className="w-4 h-4 text-crimson border-gray-300 rounded focus:ring-crimson"
                   />
                   <Label htmlFor="remember" className="text-sm text-gray-600">
                     Remember me for 30 days
@@ -257,7 +257,7 @@ export default function LoginPage() {
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full h-12 bg-crimson hover:bg-crimson-ink text-white font-medium transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
                   disabled={formik.isSubmitting || loading}
                 >
                   {formik.isSubmitting || loading ? (
@@ -321,7 +321,7 @@ export default function LoginPage() {
                   Don&apos;t have an account?{" "}
                   <Link
                     href="/register"
-                    className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
+                    className="text-crimson hover:text-crimson font-medium transition-colors"
                   >
                     Create account
                   </Link>

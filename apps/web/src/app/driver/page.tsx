@@ -73,7 +73,7 @@ export default function DriverLandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-18">
             <Link href="/" className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center p-1 shadow-lg">
+              <div className="w-12 h-12 bg-crimson rounded-xl flex items-center justify-center p-1 shadow-lg">
                 <Image
                   src="/ridexlogo.png"
                   alt="RideX Logo"
@@ -83,39 +83,39 @@ export default function DriverLandingPage() {
                   priority
                 />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold bg-crimson bg-clip-text text-transparent">
                 RideX Driver
               </span>
             </Link>
 
             <div className="hidden lg:flex items-center space-x-8">
-              <Link href="#earnings" className="text-gray-600 hover:text-emerald-600 transition-colors font-medium">
+              <Link href="#earnings" className="text-gray-600 hover:text-crimson transition-colors font-medium">
                 Earnings
               </Link>
-              <Link href="#requirements" className="text-gray-600 hover:text-emerald-600 transition-colors font-medium">
+              <Link href="#requirements" className="text-gray-600 hover:text-crimson transition-colors font-medium">
                 Requirements
               </Link>
-              <Link href="#safety" className="text-gray-600 hover:text-emerald-600 transition-colors font-medium">
+              <Link href="#safety" className="text-gray-600 hover:text-crimson transition-colors font-medium">
                 Safety
               </Link>
-              <Link href="#support" className="text-gray-600 hover:text-emerald-600 transition-colors font-medium">
+              <Link href="#support" className="text-gray-600 hover:text-crimson transition-colors font-medium">
                 Support
               </Link>
             </div>
 
             <div className="hidden lg:flex items-center space-x-4">
               <Link href="/">
-                <Button variant="ghost" className="text-gray-600 hover:text-emerald-600 font-medium">
+                <Button variant="ghost" className="text-gray-600 hover:text-crimson font-medium">
                   ← Back to RideX
                 </Button>
               </Link>
               <Link href="/driver/login">
-                <Button variant="ghost" className="text-gray-600 hover:text-emerald-600 font-medium">
+                <Button variant="ghost" className="text-gray-600 hover:text-crimson font-medium">
                   Driver Sign In
                 </Button>
               </Link>
               <Link href="/driver/register">
-                <Button className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg">
+                <Button className="bg-crimson hover:bg-crimson-ink text-white shadow-lg">
                   Start Driving
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
@@ -130,19 +130,19 @@ export default function DriverLandingPage() {
           {isMenuOpen && (
             <div className="lg:hidden py-6 border-t border-gray-100">
               <div className="flex flex-col space-y-4">
-                <Link href="#earnings" className="text-gray-600 hover:text-emerald-600 transition-colors font-medium">
+                <Link href="#earnings" className="text-gray-600 hover:text-crimson transition-colors font-medium">
                   Earnings
                 </Link>
                 <Link
                   href="#requirements"
-                  className="text-gray-600 hover:text-emerald-600 transition-colors font-medium"
+                  className="text-gray-600 hover:text-crimson transition-colors font-medium"
                 >
                   Requirements
                 </Link>
-                <Link href="#safety" className="text-gray-600 hover:text-emerald-600 transition-colors font-medium">
+                <Link href="#safety" className="text-gray-600 hover:text-crimson transition-colors font-medium">
                   Safety
                 </Link>
-                <Link href="#support" className="text-gray-600 hover:text-emerald-600 transition-colors font-medium">
+                <Link href="#support" className="text-gray-600 hover:text-crimson transition-colors font-medium">
                   Support
                 </Link>
                 <div className="flex flex-col space-y-3 pt-4 border-t border-gray-100">
@@ -157,7 +157,7 @@ export default function DriverLandingPage() {
                     </Button>
                   </Link>
                   <Link href="/driver/register">
-                    <Button className="w-full bg-gradient-to-r from-emerald-600 to-teal-600">Start Driving</Button>
+                    <Button className="w-full bg-crimson">Start Driving</Button>
                   </Link>
                 </div>
               </div>
@@ -167,23 +167,23 @@ export default function DriverLandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="pt-18 bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 relative overflow-hidden min-h-screen flex items-center">
+      <section className="pt-18 bg-paper relative overflow-hidden min-h-screen flex items-center">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-emerald-200 to-teal-200 rounded-full opacity-20 blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-gradient-to-br from-teal-200 to-cyan-200 rounded-full opacity-20 blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-20 left-20 w-72 h-72 bg-crimson/20 rounded-full opacity-20 blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-20 right-20 w-96 h-96 bg-marigold/30 rounded-full opacity-20 blur-3xl animate-pulse delay-1000"></div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="space-y-10">
               <div className="space-y-8">
-                <Badge className="bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 px-6 py-3 text-lg font-medium">
+                <Badge className="bg-crimson/10 text-crimson px-6 py-3 text-lg font-medium">
                   <TrendingUp className="w-5 h-5 mr-2" />
                   #1 Driver Platform
                 </Badge>
                 <h1 className="text-6xl lg:text-7xl font-bold text-gray-900 leading-tight">
                   Drive & Earn
-                  <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent block">
+                  <span className="bg-crimson bg-clip-text text-transparent block">
                     On Your Terms
                   </span>
                 </h1>
@@ -197,7 +197,7 @@ export default function DriverLandingPage() {
                 <Link href="/driver/register">
                   <Button
                     size="lg"
-                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white h-16 px-10 text-xl font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                    className="bg-crimson hover:bg-crimson-ink text-white h-16 px-10 text-xl font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
                   >
                     Start Driving Today
                     <ArrowRight className="w-6 h-6 ml-3" />
@@ -206,7 +206,7 @@ export default function DriverLandingPage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="h-16 px-10 text-xl font-semibold border-2 border-emerald-200 hover:bg-emerald-50 bg-white/80 backdrop-blur-sm shadow-lg"
+                  className="h-16 px-10 text-xl font-semibold border-2 border-crimson/20 hover:bg-crimson/5 bg-white/80 backdrop-blur-sm shadow-lg"
                 >
                   <BarChart3 className="w-6 h-6 mr-3" />
                   View Earnings
@@ -215,19 +215,19 @@ export default function DriverLandingPage() {
 
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 pt-12">
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-emerald-600 mb-1">$2,500+</div>
+                  <div className="text-3xl font-bold text-crimson mb-1">$2,500+</div>
                   <div className="text-sm text-gray-600 font-medium">Avg Monthly</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-emerald-600 mb-1">100K+</div>
+                  <div className="text-3xl font-bold text-crimson mb-1">100K+</div>
                   <div className="text-sm text-gray-600 font-medium">Active Drivers</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-emerald-600 mb-1">24/7</div>
+                  <div className="text-3xl font-bold text-crimson mb-1">24/7</div>
                   <div className="text-sm text-gray-600 font-medium">Drive Anytime</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-3xl font-bold text-emerald-600 mb-1">85%</div>
+                  <div className="text-3xl font-bold text-crimson mb-1">85%</div>
                   <div className="text-sm text-gray-600 font-medium">You Keep</div>
                 </div>
               </div>
@@ -238,12 +238,12 @@ export default function DriverLandingPage() {
                 <CardContent className="space-y-8">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
-                      <div className="w-14 h-14 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center">
+                      <div className="w-14 h-14 bg-crimson rounded-xl flex items-center justify-center">
                         <Car className="w-7 h-7 text-white" />
                       </div>
                       <div>
                         <h3 className="font-bold text-xl text-gray-900">Driver Dashboard</h3>
-                        <p className="text-emerald-600 font-medium">Online & Earning</p>
+                        <p className="text-crimson font-medium">Online & Earning</p>
                       </div>
                     </div>
                     <Badge className="bg-green-100 text-green-700 px-4 py-2 font-semibold">
@@ -253,13 +253,13 @@ export default function DriverLandingPage() {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="bg-gradient-to-r from-emerald-50 to-teal-50 p-6 rounded-xl">
+                    <div className="bg-paper-2 p-6 rounded-xl">
                       <div className="flex justify-between items-center mb-4">
                         <span className="text-gray-600 font-medium">Today&apos;s Earnings</span>
-                        <TrendingUp className="w-5 h-5 text-emerald-600" />
+                        <TrendingUp className="w-5 h-5 text-crimson" />
                       </div>
                       <div className="text-3xl font-bold text-gray-900">$247.50</div>
-                      <div className="text-sm text-emerald-600 font-medium">+18% from yesterday</div>
+                      <div className="text-sm text-crimson font-medium">+18% from yesterday</div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -281,7 +281,7 @@ export default function DriverLandingPage() {
                       ].map((trip, index) => (
                         <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                           <div className="flex items-center space-x-3">
-                            <MapPin className="w-4 h-4 text-emerald-600" />
+                            <MapPin className="w-4 h-4 text-crimson" />
                             <div>
                               <p className="text-sm font-medium text-gray-900">
                                 {trip.from} → {trip.to}
@@ -289,7 +289,7 @@ export default function DriverLandingPage() {
                               <p className="text-xs text-gray-600">{trip.time}</p>
                             </div>
                           </div>
-                          <span className="font-semibold text-emerald-600">{trip.amount}</span>
+                          <span className="font-semibold text-crimson">{trip.amount}</span>
                         </div>
                       ))}
                     </div>
@@ -318,10 +318,10 @@ export default function DriverLandingPage() {
                 className="border-0 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2"
               >
                 <CardContent className="p-10 text-center">
-                  <div className="w-20 h-20 bg-gradient-to-br from-emerald-100 to-teal-100 rounded-2xl flex items-center justify-center mx-auto mb-8">
-                    <div className="text-emerald-600">{benefit.icon}</div>
+                  <div className="w-20 h-20 bg-crimson/10 rounded-2xl flex items-center justify-center mx-auto mb-8">
+                    <div className="text-crimson">{benefit.icon}</div>
                   </div>
-                  <div className="text-2xl font-bold text-emerald-600 mb-2">{benefit.highlight}</div>
+                  <div className="text-2xl font-bold text-crimson mb-2">{benefit.highlight}</div>
                   <h3 className="text-xl font-bold text-gray-900 mb-4">{benefit.title}</h3>
                   <p className="text-gray-600">{benefit.description}</p>
                 </CardContent>
@@ -344,7 +344,7 @@ export default function DriverLandingPage() {
               <Card key={index} className="border-0 shadow-xl">
                 <CardContent className="p-8 text-center">
                   <h3 className="text-xl font-bold text-gray-900 mb-4">{earning.city}</h3>
-                  <div className="text-4xl font-bold text-emerald-600 mb-2">{earning.amount}</div>
+                  <div className="text-4xl font-bold text-crimson mb-2">{earning.amount}</div>
                   <p className="text-gray-600">{earning.period}</p>
                   <div className="mt-6 pt-6 border-t border-gray-100">
                     <p className="text-sm text-gray-500">Average earnings for active drivers</p>
@@ -355,26 +355,26 @@ export default function DriverLandingPage() {
           </div>
 
           <div className="text-center mt-16">
-            <Card className="max-w-4xl mx-auto border-0 shadow-xl bg-gradient-to-r from-emerald-50 to-teal-50">
+            <Card className="max-w-4xl mx-auto border-0 shadow-xl bg-paper-2">
               <CardContent className="p-12">
                 <h3 className="text-3xl font-bold text-gray-900 mb-6">Maximize Your Earnings</h3>
                 <div className="grid md:grid-cols-3 gap-8">
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-crimson rounded-full flex items-center justify-center mx-auto mb-4">
                       <Clock className="w-8 h-8 text-white" />
                     </div>
                     <h4 className="font-semibold text-gray-900 mb-2">Peak Hours</h4>
                     <p className="text-gray-600">Drive during rush hours and weekends for higher fares</p>
                   </div>
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-crimson rounded-full flex items-center justify-center mx-auto mb-4">
                       <MapPin className="w-8 h-8 text-white" />
                     </div>
                     <h4 className="font-semibold text-gray-900 mb-2">Hot Zones</h4>
                     <p className="text-gray-600">Stay in high-demand areas for more ride requests</p>
                   </div>
                   <div className="text-center">
-                    <div className="w-16 h-16 bg-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <div className="w-16 h-16 bg-crimson rounded-full flex items-center justify-center mx-auto mb-4">
                       <Star className="w-8 h-8 text-white" />
                     </div>
                     <h4 className="font-semibold text-gray-900 mb-2">High Rating</h4>
@@ -400,8 +400,8 @@ export default function DriverLandingPage() {
               <div className="space-y-4">
                 {requirements.map((requirement, index) => (
                   <div key={index} className="flex items-center space-x-4">
-                    <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <CheckCircle className="w-5 h-5 text-emerald-600" />
+                    <div className="w-8 h-8 bg-crimson/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <CheckCircle className="w-5 h-5 text-crimson" />
                     </div>
                     <span className="text-lg text-gray-700">{requirement}</span>
                   </div>
@@ -412,7 +412,7 @@ export default function DriverLandingPage() {
                 <Link href="/driver/register">
                   <Button
                     size="lg"
-                    className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white h-14 px-8 text-lg"
+                    className="bg-crimson hover:bg-crimson-ink text-white h-14 px-8 text-lg"
                   >
                     Apply Now - It&apos;s Free
                     <ArrowRight className="w-5 h-5 ml-2" />
@@ -453,13 +453,13 @@ export default function DriverLandingPage() {
                       },
                     ].map((step, index) => (
                       <div key={index} className="flex items-start space-x-4">
-                        <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 bg-crimson rounded-full flex items-center justify-center flex-shrink-0">
                           <span className="text-white font-bold">{step.step}</span>
                         </div>
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-2">
                             <h4 className="font-semibold text-gray-900">{step.title}</h4>
-                            <Badge variant="secondary" className="bg-emerald-100 text-emerald-700">
+                            <Badge variant="secondary" className="bg-crimson/10 text-crimson">
                               {step.time}
                             </Badge>
                           </div>
@@ -476,11 +476,11 @@ export default function DriverLandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600">
+      <section className="py-24 bg-crimson">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="max-w-4xl mx-auto">
             <h2 className="text-5xl font-bold text-white mb-8">Ready to Start Earning?</h2>
-            <p className="text-2xl text-emerald-100 mb-12">
+            <p className="text-2xl text-white/80 mb-12">
               Join thousands of drivers who&apos;ve already made the switch to RideX. Start your application today and begin
               earning this week.
             </p>
@@ -488,7 +488,7 @@ export default function DriverLandingPage() {
               <Link href="/driver/register">
                 <Button
                   size="lg"
-                  className="bg-white text-emerald-600 hover:bg-gray-100 h-16 px-10 text-xl font-bold shadow-2xl"
+                  className="bg-white text-crimson hover:bg-gray-100 h-16 px-10 text-xl font-bold shadow-2xl"
                 >
                   Start Driving Today
                   <ArrowRight className="w-6 h-6 ml-3" />
@@ -498,7 +498,7 @@ export default function DriverLandingPage() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="border-2 border-white text-white hover:bg-white hover:text-emerald-600 h-16 px-10 text-xl font-bold bg-transparent"
+                  className="border-2 border-white text-white hover:bg-white hover:text-crimson h-16 px-10 text-xl font-bold bg-transparent"
                 >
                   Driver Sign In
                 </Button>
@@ -514,7 +514,7 @@ export default function DriverLandingPage() {
           <div className="grid md:grid-cols-4 gap-8">
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-emerald-600 to-teal-600 rounded-xl flex items-center justify-center p-1">
+                <div className="w-10 h-10 bg-crimson rounded-xl flex items-center justify-center p-1">
                   <Image src="/ridexlogo.png" alt="RideX Logo" width={32} height={32} className="object-contain" />
                 </div>
                 <span className="text-2xl font-bold">RideX Driver</span>

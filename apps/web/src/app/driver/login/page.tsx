@@ -53,7 +53,7 @@ export default function DriverLoginPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="flex min-h-screen">
         {/* Left Side - Driver Dashboard Preview */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 relative overflow-hidden">
+        <div className="hidden lg:flex lg:w-1/2 bg-midnight relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-20 left-20 w-32 h-32 bg-white rounded-full"></div>
             <div className="absolute top-40 right-32 w-24 h-24 bg-white rounded-full"></div>
@@ -76,15 +76,15 @@ export default function DriverLoginPage() {
                 </div>
                 <h1 className="text-3xl font-bold">RideX Driver</h1>
               </div>
-              <p className="text-emerald-100 text-lg">Welcome back, driver</p>
+              <p className="text-white/80 text-lg">Welcome back, driver</p>
             </div>
 
             <div className="mb-12">
               <h2 className="text-4xl font-bold mb-6 leading-tight">
                 Ready to
-                <span className="block text-emerald-200">Start Earning?</span>
+                <span className="block text-white/70">Start Earning?</span>
               </h2>
-              <p className="text-xl text-emerald-100 mb-8 leading-relaxed">
+              <p className="text-xl text-white/80 mb-8 leading-relaxed">
                 Sign in to access your driver dashboard, track your earnings, and start accepting rides.
               </p>
             </div>
@@ -108,30 +108,30 @@ export default function DriverLoginPage() {
                 },
               ].map((feature, index) => (
                 <div key={index} className="flex items-start space-x-4">
-                  <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-crimson/50 rounded-lg flex items-center justify-center flex-shrink-0">
                     {feature.icon}
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg mb-1">{feature.title}</h3>
-                    <p className="text-emerald-100 text-sm">{feature.description}</p>
+                    <p className="text-white/80 text-sm">{feature.description}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="mt-12 bg-emerald-500/20 rounded-lg p-6">
+            <div className="mt-12 bg-crimson/50/20 rounded-lg p-6">
               <h3 className="font-semibold text-lg mb-4">Today&apos;s Opportunities</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-emerald-100">Peak hours active</span>
+                  <span className="text-white/80">Peak hours active</span>
                   <Badge className="bg-yellow-500 text-yellow-900">High Demand</Badge>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-emerald-100">Surge multiplier</span>
+                  <span className="text-white/80">Surge multiplier</span>
                   <span className="font-bold">1.8x</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-emerald-100">Estimated hourly</span>
+                  <span className="text-white/80">Estimated hourly</span>
                   <span className="font-bold">$32-45</span>
                 </div>
               </div>
@@ -144,7 +144,7 @@ export default function DriverLoginPage() {
           <div className="w-full max-w-md space-y-8">
             <div className="lg:hidden text-center">
               <div className="flex items-center justify-center space-x-3 mb-4">
-                <div className="w-16 h-16 bg-emerald-600 rounded-xl flex items-center justify-center p-2 shadow-lg">
+                <div className="w-16 h-16 bg-crimson rounded-xl flex items-center justify-center p-2 shadow-lg">
                   <Image
                     src="/ridexlogo.png"
                     alt="RideX Logo"
@@ -162,7 +162,7 @@ export default function DriverLoginPage() {
             <div className="space-y-6">
               <div className="text-center pb-6">
                 <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <div className="w-16 h-16 bg-crimson rounded-xl flex items-center justify-center shadow-lg">
                     <Car className="w-8 h-8 text-white" />
                   </div>
                 </div>
@@ -188,7 +188,7 @@ export default function DriverLoginPage() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password">Password</Label>
-                    <Link href="/driver/forgot-password" className="text-sm text-emerald-600 hover:text-emerald-700">
+                    <Link href="/driver/forgot-password" className="text-sm text-crimson hover:text-crimson">
                       Forgot password?
                     </Link>
                   </div>
@@ -214,7 +214,7 @@ export default function DriverLoginPage() {
                 </div>
 
                 <div className="flex items-center space-x-2">
-                  <input type="checkbox" id="remember" className="w-4 h-4 text-emerald-600 border-gray-300 rounded" />
+                  <input type="checkbox" id="remember" className="w-4 h-4 text-crimson border-gray-300 rounded" />
                   <Label htmlFor="remember" className="text-sm text-gray-600">
                     Keep me signed in
                   </Label>
@@ -222,7 +222,7 @@ export default function DriverLoginPage() {
 
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+                  className="w-full h-12 bg-crimson hover:bg-crimson-ink text-white font-medium"
                   disabled={formik.isSubmitting || loading}
                 >
                   {formik.isSubmitting || loading ? (
@@ -242,7 +242,7 @@ export default function DriverLoginPage() {
               <div className="text-center pt-4 border-t border-gray-100">
                 <p className="text-gray-600">
                   New to RideX?{" "}
-                  <Link href="/driver/register" className="text-emerald-600 hover:text-emerald-700 font-medium">
+                  <Link href="/driver/register" className="text-crimson hover:text-crimson font-medium">
                     Apply to drive
                   </Link>
                 </p>

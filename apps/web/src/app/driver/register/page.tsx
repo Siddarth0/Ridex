@@ -90,7 +90,7 @@ export default function DriverRegisterPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="flex min-h-screen">
         {/* Left Side - Driver Benefits */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 relative overflow-hidden">
+        <div className="hidden lg:flex lg:w-1/2 bg-midnight relative overflow-hidden">
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-20 left-20 w-32 h-32 bg-white rounded-full"></div>
             <div className="absolute top-40 right-32 w-24 h-24 bg-white rounded-full"></div>
@@ -113,15 +113,15 @@ export default function DriverRegisterPage() {
                 </div>
                 <h1 className="text-3xl font-bold">RideX Driver</h1>
               </div>
-              <p className="text-emerald-100 text-lg">Start earning today</p>
+              <p className="text-white/80 text-lg">Start earning today</p>
             </div>
 
             <div className="mb-12">
               <h2 className="text-4xl font-bold mb-6 leading-tight">
                 Turn Your Car Into
-                <span className="block text-emerald-200">Your Business</span>
+                <span className="block text-white/70">Your Business</span>
               </h2>
-              <p className="text-xl text-emerald-100 mb-8 leading-relaxed">
+              <p className="text-xl text-white/80 mb-8 leading-relaxed">
                 Join thousands of drivers earning flexible income with RideX. Set your own schedule, keep 85% of your
                 earnings, and drive when you want.
               </p>
@@ -146,30 +146,30 @@ export default function DriverRegisterPage() {
                 },
               ].map((benefit, index) => (
                 <div key={index} className="flex items-start space-x-4">
-                  <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-crimson/50 rounded-lg flex items-center justify-center flex-shrink-0">
                     {benefit.icon}
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg mb-1">{benefit.title}</h3>
-                    <p className="text-emerald-100 text-sm">{benefit.description}</p>
+                    <p className="text-white/80 text-sm">{benefit.description}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="mt-12 bg-emerald-500/20 rounded-lg p-6">
+            <div className="mt-12 bg-crimson/50/20 rounded-lg p-6">
               <h3 className="font-semibold text-lg mb-4">Driver Earnings</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-emerald-100">Average per hour</span>
+                  <span className="text-white/80">Average per hour</span>
                   <span className="font-bold">$25-35</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-emerald-100">Top drivers monthly</span>
+                  <span className="text-white/80">Top drivers monthly</span>
                   <span className="font-bold">$4,000+</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-emerald-100">You keep</span>
+                  <span className="text-white/80">You keep</span>
                   <span className="font-bold">85%</span>
                 </div>
               </div>
@@ -182,7 +182,7 @@ export default function DriverRegisterPage() {
           <div className="w-full max-w-md space-y-8">
             <div className="lg:hidden text-center">
               <div className="flex items-center justify-center space-x-3 mb-4">
-                <div className="w-16 h-16 bg-emerald-600 rounded-xl flex items-center justify-center p-2 shadow-lg">
+                <div className="w-16 h-16 bg-crimson rounded-xl flex items-center justify-center p-2 shadow-lg">
                   <Image
                     src="/ridexlogo.png"
                     alt="RideX Logo"
@@ -200,7 +200,7 @@ export default function DriverRegisterPage() {
             <div className="space-y-6">
               <div className="text-center pb-6">
                 <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <div className="w-16 h-16 bg-crimson rounded-xl flex items-center justify-center shadow-lg">
                     <Car className="w-8 h-8 text-white" />
                   </div>
                 </div>
@@ -395,14 +395,14 @@ export default function DriverRegisterPage() {
                 </div>
 
                 <div className="flex items-start space-x-3 text-sm text-gray-600 bg-gray-50 p-4 rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                  <CheckCircle className="w-5 h-5 text-crimson mt-0.5 flex-shrink-0" />
                   <p>
                     By applying, you agree to our{" "}
-                    <Link href="/driver/terms" className="text-emerald-600 hover:text-emerald-700 underline">
+                    <Link href="/driver/terms" className="text-crimson hover:text-crimson underline">
                       Driver Terms
                     </Link>{" "}
                     and{" "}
-                    <Link href="/privacy" className="text-emerald-600 hover:text-emerald-700 underline">
+                    <Link href="/privacy" className="text-crimson hover:text-crimson underline">
                       Privacy Policy
                     </Link>
                   </p>
@@ -410,7 +410,7 @@ export default function DriverRegisterPage() {
 
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium"
+                  className="w-full h-12 bg-crimson hover:bg-crimson-ink text-white font-medium"
                   disabled={formik.isSubmitting || loading}
                 >
                   {formik.isSubmitting || loading ? (
@@ -430,7 +430,7 @@ export default function DriverRegisterPage() {
               <div className="text-center pt-4 border-t border-gray-100">
                 <p className="text-gray-600">
                   Already a driver?{" "}
-                  <Link href="/driver/login" className="text-emerald-600 hover:text-emerald-700 font-medium">
+                  <Link href="/driver/login" className="text-crimson hover:text-crimson font-medium">
                     Sign in here
                   </Link>
                 </p>

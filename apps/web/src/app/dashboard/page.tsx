@@ -2,20 +2,35 @@
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import Image from "next/image"
 import api, { isUnauthorized } from "@/lib/api"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Car, Clock, LogOut, MapPin, Star } from "lucide-react"
+import { AppHeader } from "@/components/brand/app-header"
+import { ArrowRight, Bike, Car, MapPin, Navigation, Star } from "lucide-react"
 
 interface Me {
   firstName: string
   lastName: string
   email: string
   role: string
-  emailVerified: boolean
+}
+
+interface RideRow {
+  id: string
+  status: string
+  rideType: "bike" | "car" | "premium"
+  pickup: { address: string }
+  destination: { address: string }
+  finalFare: number | null
+  estimatedFare: number | null
+  currency: string
+  requestedAt: string
+}
+
+const statusTone: Record<string, string> = {
+  completed: "text-jade",
+  cancelled: "text-crimson",
+  expired: "text-muted-foreground",
 }
 
 export default function DashboardPage() {
@@ -23,6 +38,7 @@ export default function DashboardPage() {
   const [me, setMe] = useState<Me | null>(null)
   const [loading, setLoading] = useState(true)
   const [activeRide, setActiveRide] = useState<{ id: string; status: string } | null>(null)
+  const [rides, setRides] = useState<RideRow[]>([])
 
   useEffect(() => {
     let cancelled = false
@@ -40,10 +56,16 @@ export default function DashboardPage() {
         return
       }
       try {
-        const active = await api.get("/rides/active")
-        if (!cancelled) setActiveRide(active.data?.data?.ride ?? null)
+        const [active, history] = await Promise.all([
+          api.get("/rides/active"),
+          api.get("/rides", { params: { limit: 6 } }),
+        ])
+        if (!cancelled) {
+          setActiveRide(active.data?.data?.ride ?? null)
+          setRides(history.data?.data?.rides ?? [])
+        }
       } catch {
-        /* non-critical — the dashboard still works without this */
+        /* non-critical */
       }
       if (!cancelled) setLoading(false)
     })()
@@ -62,107 +84,124 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">Loading your dashboard…</p>
+      <div className="flex min-h-screen items-center justify-center bg-paper">
+        <p className="tnum text-sm text-muted-foreground">loading…</p>
       </div>
     )
   }
-
   if (!me) return null
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center">
-              <Image src="/ridexlogo.png" alt="RideX" width={24} height={24} />
-            </div>
-            <span className="text-xl font-bold text-gray-900">RideX</span>
-          </div>
-          <div className="flex items-center space-x-3">
-            <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 capitalize">{me.role}</Badge>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign out
-            </Button>
-          </div>
-        </div>
-      </header>
+  const completed = rides.filter((r) => r.status === "completed").length
+  const spent = rides
+    .filter((r) => r.status === "completed")
+    .reduce((s, r) => s + (r.finalFare ?? 0), 0)
 
-      <main className="max-w-6xl mx-auto px-6 py-10 space-y-8">
+  return (
+    <div className="min-h-screen bg-paper">
+      <AppHeader role={me.role} onSignOut={handleLogout} />
+
+      <main className="mx-auto max-w-6xl space-y-8 px-4 py-10 sm:px-6">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {me.firstName}! 👋</h1>
-          <p className="text-gray-600 mt-1">Where are you headed today?</p>
+          <p className="font-deva text-sm text-crimson">नमस्ते, {me.firstName}</p>
+          <h1 className="mt-1 font-display text-3xl font-bold tracking-tight text-ink">
+            Where to today?
+          </h1>
         </div>
 
         {activeRide && (
-          <Link href="/book-ride" className="block">
-            <Card className="border-emerald-500 border-2 bg-emerald-50 hover:bg-emerald-100 transition">
-              <CardContent className="p-4 flex items-center justify-between">
-                <p className="font-medium text-emerald-800">
-                  🚗 You have a ride in progress — tap to view live status
-                </p>
-                <Badge className="bg-emerald-600 text-white capitalize">{activeRide.status}</Badge>
-              </CardContent>
-            </Card>
+          <Link
+            href="/book-ride"
+            className="flex items-center justify-between rounded-2xl border border-crimson/30 bg-crimson/5 px-5 py-4 transition-colors hover:bg-crimson/10"
+          >
+            <span className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-crimson text-white">
+                <Navigation className="h-4 w-4" />
+              </span>
+              <span>
+                <span className="block text-sm font-semibold text-ink">A ride is in progress</span>
+                <span className="block text-xs capitalize text-muted-foreground">{activeRide.status} — tap to track live</span>
+              </span>
+            </span>
+            <ArrowRight className="h-5 w-5 text-crimson" />
           </Link>
         )}
 
-        <Card className="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 text-white border-0">
-          <CardContent className="p-8 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-              <h2 className="text-2xl font-semibold mb-1">Book a ride</h2>
-              <p className="text-emerald-50">
-                Live booking with maps and fare estimates is on its way. Hang tight!
+        {/* Book-a-ride panel */}
+        <div className="relative overflow-hidden rounded-3xl bg-midnight bg-contours p-8 text-white">
+          <div className="relative z-10 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+            <div className="max-w-md">
+              <h2 className="font-display text-2xl font-bold">Book a bike or car</h2>
+              <p className="mt-2 text-white/70">
+                Drop a pin or name a landmark. See the fare in NPR before you confirm — no surprises.
               </p>
             </div>
             <Link href="/book-ride">
-              <Button size="lg" variant="secondary" className="whitespace-nowrap">
-                <MapPin className="w-4 h-4 mr-2" />
-                Book a ride
+              <Button size="lg" className="h-13 bg-crimson px-7 text-base text-white hover:bg-crimson-ink">
+                <MapPin className="mr-2 h-5 w-5" />
+                Start a ride
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-gray-500 font-medium flex items-center">
-                <Car className="w-4 h-4 mr-2 text-emerald-600" />
-                Total rides
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-gray-900">0</p>
-              <p className="text-sm text-gray-500 mt-1">Your rides will appear here</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-gray-500 font-medium flex items-center">
-                <Clock className="w-4 h-4 mr-2 text-emerald-600" />
-                Recent activity
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-gray-900">—</p>
-              <p className="text-sm text-gray-500 mt-1">No trips yet</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-gray-500 font-medium flex items-center">
-                <Star className="w-4 h-4 mr-2 text-emerald-600" />
-                Your rating
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-gray-900">New</p>
-              <p className="text-sm text-gray-500 mt-1">Complete a ride to get rated</p>
-            </CardContent>
-          </Card>
+        {/* Honest stat strip */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          {[
+            { label: "Rides taken", value: String(completed), sub: "completed with RideX", icon: Car },
+            { label: "Spent", value: `रु ${spent.toLocaleString("en-IN")}`, sub: "on recent rides", icon: Bike },
+            { label: "Your rating", value: "New", sub: "riders rate you too", icon: Star },
+          ].map(({ label, value, sub, icon: Icon }) => (
+            <div key={label} className="rounded-2xl border border-border bg-card p-6">
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-widest text-muted-foreground">{label}</span>
+                <Icon className="h-4 w-4 text-crimson" />
+              </div>
+              <p className="tnum mt-3 text-3xl font-bold text-ink">{value}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{sub}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Recent rides */}
+        <div>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-display text-xl font-bold text-ink">Recent rides</h2>
+          </div>
+          {rides.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-border bg-card p-10 text-center">
+              <p className="text-sm text-muted-foreground">No rides yet — your trips will show up here.</p>
+              <Link href="/book-ride" className="mt-3 inline-block text-sm font-semibold text-crimson hover:underline">
+                Book your first ride →
+              </Link>
+            </div>
+          ) : (
+            <div className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card">
+              {rides.map((r) => {
+                const Icon = r.rideType === "bike" ? Bike : Car
+                return (
+                  <div key={r.id} className="flex items-center gap-4 px-5 py-4">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-paper-2 text-ink">
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-ink">
+                        {r.pickup.address} → {r.destination.address}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(r.requestedAt).toLocaleDateString()} ·{" "}
+                        <span className={`capitalize ${statusTone[r.status] ?? "text-muted-foreground"}`}>
+                          {r.status.replace("_", " ")}
+                        </span>
+                      </p>
+                    </div>
+                    <span className="tnum shrink-0 text-sm font-semibold text-ink">
+                      रु {(r.finalFare ?? r.estimatedFare ?? 0).toLocaleString("en-IN")}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </div>
       </main>
     </div>

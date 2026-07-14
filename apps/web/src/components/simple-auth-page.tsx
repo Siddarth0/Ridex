@@ -19,7 +19,7 @@ const SimpleAuthPage = ({ children, title, description, showLogo = true, size = 
         {showLogo && (
           <div className="flex flex-col items-center space-y-4">
             <Link href="/" className="inline-flex items-center space-x-3">
-              <div className="w-12 h-12 bg-emerald-600 rounded-xl flex items-center justify-center p-1">
+              <div className="w-12 h-12 bg-crimson rounded-xl flex items-center justify-center p-1">
                 <Image
                   src="/ridexlogo.png"
                   alt="RideX Logo"

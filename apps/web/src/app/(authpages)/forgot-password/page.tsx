@@ -42,8 +42,8 @@ export default function ForgotPasswordPage() {
     return (
       <SimpleAuthPage title="Check Your Email" description="We've sent a password reset link to your email address">
         <div className="text-center space-y-4">
-          <div className="w-16 h-16 bg-emerald-100 rounded-full flex items-center justify-center mx-auto">
-            <Mail className="w-8 h-8 text-emerald-600" />
+          <div className="w-16 h-16 bg-crimson/10 rounded-full flex items-center justify-center mx-auto">
+            <Mail className="w-8 h-8 text-crimson" />
           </div>
           <p className="text-gray-600">
             Click the link in the email to reset your password. If you don&apos;t see it, check your spam folder.
@@ -82,7 +82,7 @@ export default function ForgotPasswordPage() {
           {formik.touched.email && formik.errors.email && <p className="text-red-500 text-sm">{formik.errors.email}</p>}
         </div>
 
-        <Button type="submit" className="w-full h-12 bg-emerald-600 hover:bg-emerald-700" disabled={loading}>
+        <Button type="submit" className="w-full h-12 bg-crimson hover:bg-crimson-ink" disabled={loading}>
           {loading ? (
             <div className="flex items-center space-x-2">
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -95,7 +95,7 @@ export default function ForgotPasswordPage() {
       </form>
 
       <div className="text-center pt-4 border-t border-gray-100">
-        <Link href="/login" className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
+        <Link href="/login" className="text-crimson hover:text-crimson font-medium transition-colors">
           <ArrowLeft className="w-4 h-4 inline mr-2" />
           Back to Login
         </Link>

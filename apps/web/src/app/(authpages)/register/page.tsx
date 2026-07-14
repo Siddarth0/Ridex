@@ -84,7 +84,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-gray-50">
       <div className="flex min-h-screen">
         {/* Left Side - Hero Section */}
-        <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 relative overflow-hidden">
+        <div className="hidden lg:flex lg:w-1/2 bg-midnight relative overflow-hidden">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-20 left-20 w-32 h-32 bg-white rounded-full"></div>
@@ -109,16 +109,16 @@ export default function RegisterPage() {
                 </div>
                 <h1 className="text-3xl font-bold">RideX</h1>
               </div>
-              <p className="text-emerald-100 text-lg">Your journey starts here</p>
+              <p className="text-white/80 text-lg">Your journey starts here</p>
             </div>
 
             {/* Main Content */}
             <div className="mb-12">
               <h2 className="text-4xl font-bold mb-6 leading-tight">
                 Join the Future of
-                <span className="block text-emerald-200">Ride Sharing</span>
+                <span className="block text-white/70">Ride Sharing</span>
               </h2>
-              <p className="text-xl text-emerald-100 mb-8 leading-relaxed">
+              <p className="text-xl text-white/80 mb-8 leading-relaxed">
                 Connect with trusted drivers, enjoy safe rides, and be part of a community that&apos;s changing how we move
                 around the city.
               </p>
@@ -128,12 +128,12 @@ export default function RegisterPage() {
             <div className="space-y-6">
               {features.map((feature, index) => (
                 <div key={index} className="flex items-start space-x-4">
-                  <div className="w-10 h-10 bg-emerald-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-crimson/50 rounded-lg flex items-center justify-center flex-shrink-0">
                     {feature.icon}
                   </div>
                   <div>
                     <h3 className="font-semibold text-lg mb-1">{feature.title}</h3>
-                    <p className="text-emerald-100 text-sm">{feature.description}</p>
+                    <p className="text-white/80 text-sm">{feature.description}</p>
                   </div>
                 </div>
               ))}
@@ -143,18 +143,18 @@ export default function RegisterPage() {
             <div className="mt-12 grid grid-cols-3 gap-8">
               <div className="text-center">
                 <div className="text-2xl font-bold mb-1">50K+</div>
-                <div className="text-emerald-200 text-sm">Happy Riders</div>
+                <div className="text-white/70 text-sm">Happy Riders</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold mb-1">10K+</div>
-                <div className="text-emerald-200 text-sm">Trusted Drivers</div>
+                <div className="text-white/70 text-sm">Trusted Drivers</div>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center mb-1">
                   <span className="text-2xl font-bold">4.9</span>
                   <Star className="w-5 h-5 ml-1 fill-current" />
                 </div>
-                <div className="text-emerald-200 text-sm">Average Rating</div>
+                <div className="text-white/70 text-sm">Average Rating</div>
               </div>
             </div>
           </div>
@@ -210,7 +210,7 @@ export default function RegisterPage() {
                       id="firstName"
                       type="text"
                       placeholder="John"
-                      className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                      className="h-12 border-gray-200 focus:border-crimson focus:ring-crimson"
                       {...formik.getFieldProps("firstName")}
                     />
                     {formik.touched.firstName && formik.errors.firstName && (
@@ -225,7 +225,7 @@ export default function RegisterPage() {
                       id="lastName"
                       type="text"
                       placeholder="Doe"
-                      className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                      className="h-12 border-gray-200 focus:border-crimson focus:ring-crimson"
                       {...formik.getFieldProps("lastName")}
                     />
                     {formik.touched.lastName && formik.errors.lastName && (
@@ -243,7 +243,7 @@ export default function RegisterPage() {
                     id="email"
                     type="email"
                     placeholder="you@example.com"
-                    className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                    className="h-12 border-gray-200 focus:border-crimson focus:ring-crimson"
                     {...formik.getFieldProps("email")}
                   />
                   {formik.touched.email && formik.errors.email && (
@@ -260,7 +260,7 @@ export default function RegisterPage() {
                     id="phoneNumber"
                     type="tel"
                     placeholder="9800000000"
-                    className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                    className="h-12 border-gray-200 focus:border-crimson focus:ring-crimson"
                     {...formik.getFieldProps("phoneNumber")}
                   />
                   {formik.touched.phoneNumber && formik.errors.phoneNumber && (
@@ -278,7 +278,7 @@ export default function RegisterPage() {
                       id="password"
                       type="password"
                       placeholder="••••••••"
-                      className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                      className="h-12 border-gray-200 focus:border-crimson focus:ring-crimson"
                       {...formik.getFieldProps("password")}
                     />
                     {formik.touched.password && formik.errors.password && (
@@ -293,7 +293,7 @@ export default function RegisterPage() {
                       id="confirmPassword"
                       type="password"
                       placeholder="••••••••"
-                      className="h-12 border-gray-200 focus:border-emerald-500 focus:ring-emerald-500"
+                      className="h-12 border-gray-200 focus:border-crimson focus:ring-crimson"
                       {...formik.getFieldProps("confirmPassword")}
                     />
                     {formik.touched.confirmPassword && formik.errors.confirmPassword && (
@@ -304,14 +304,14 @@ export default function RegisterPage() {
 
                 {/* Terms */}
                 <div className="flex items-start space-x-3 text-sm text-gray-600 bg-gray-50 p-4 rounded-lg">
-                  <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                  <CheckCircle className="w-5 h-5 text-crimson mt-0.5 flex-shrink-0" />
                   <p>
                     By creating an account, you agree to our{" "}
-                    <Link href="/terms" className="text-emerald-600 hover:text-emerald-700 underline">
+                    <Link href="/terms" className="text-crimson hover:text-crimson underline">
                       Terms of Service
                     </Link>{" "}
                     and{" "}
-                    <Link href="/privacy" className="text-emerald-600 hover:text-emerald-700 underline">
+                    <Link href="/privacy" className="text-crimson hover:text-crimson underline">
                       Privacy Policy
                     </Link>
                   </p>
@@ -320,7 +320,7 @@ export default function RegisterPage() {
                 {/* Submit Button */}
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full h-12 bg-crimson hover:bg-crimson-ink text-white font-medium transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
                   disabled={formik.isSubmitting || loading}
                 >
                   {formik.isSubmitting || loading ? (
@@ -341,7 +341,7 @@ export default function RegisterPage() {
               <div className="text-center pt-4 border-t border-gray-100">
                 <p className="text-gray-600">
                   Already have an account?{" "}
-                  <Link href="/login" className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
+                  <Link href="/login" className="text-crimson hover:text-crimson font-medium transition-colors">
                     Sign in instead
                   </Link>
                 </p>

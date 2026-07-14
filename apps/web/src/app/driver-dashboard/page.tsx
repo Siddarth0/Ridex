@@ -1,23 +1,24 @@
 "use client"
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
 import api, { getApiErrorMessage } from "@/lib/api"
 import { getSocket } from "@/lib/socket"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { RideMap } from "@/components/ride-map"
+import { Wordmark } from "@/components/brand/wordmark"
 import {
-  Banknote,
+  Bike,
   Car,
   CheckCircle,
   Clock,
+  Crown,
   LogOut,
   MapPin,
   Navigation,
   Phone,
+  Power,
   Star,
   X,
 } from "lucide-react"
@@ -61,6 +62,9 @@ const NEXT_ACTION: Record<string, { label: string; endpoint: string } | undefine
   arrived: { label: "Start ride", endpoint: "start" },
   in_progress: { label: "Complete ride", endpoint: "complete" },
 }
+
+const RIDE_ICON: Record<string, typeof Bike> = { bike: Bike, car: Car, premium: Crown }
+const RIDE_STEPS = ["accepted", "arrived", "in_progress"] as const
 
 export default function DriverDashboardPage() {
   const router = useRouter()
@@ -309,8 +313,8 @@ export default function DriverDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-500">Loading your dashboard…</p>
+      <div className="flex min-h-screen items-center justify-center bg-paper">
+        <p className="tnum text-sm text-muted-foreground">loading…</p>
       </div>
     )
   }
@@ -318,23 +322,23 @@ export default function DriverDashboardPage() {
 
   if (profile.status !== "approved") {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <Card className="max-w-md w-full">
-          <CardContent className="p-8 text-center space-y-3">
-            <Clock className="w-10 h-10 text-yellow-500 mx-auto" />
-            <h1 className="text-xl font-bold text-gray-900">
-              {profile.status === "pending" ? "Application under review" : "Application " + profile.status}
-            </h1>
-            <p className="text-gray-600 text-sm">
-              {profile.status === "pending"
-                ? "We're reviewing your documents. You'll be able to go online once approved."
-                : (profile.rejectionReason ?? "Contact support for details.")}
-            </p>
-            <Button variant="outline" onClick={handleLogout}>
-              Sign out
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="flex min-h-screen items-center justify-center bg-midnight bg-contours px-4">
+        <div className="w-full max-w-md rounded-3xl bg-white p-8 text-center shadow-2xl">
+          <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-marigold/15 text-marigold">
+            <Clock className="h-7 w-7" />
+          </span>
+          <h1 className="mt-5 font-display text-2xl font-bold text-ink">
+            {profile.status === "pending" ? "Application under review" : `Application ${profile.status}`}
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {profile.status === "pending"
+              ? "We're reviewing your documents. You'll be able to go online once approved."
+              : (profile.rejectionReason ?? "Contact support for details.")}
+          </p>
+          <Button variant="outline" className="mt-6 border-border" onClick={handleLogout}>
+            Sign out
+          </Button>
+        </div>
       </div>
     )
   }
@@ -350,8 +354,9 @@ export default function DriverDashboardPage() {
       arrived: "At pickup — start when the rider is in",
       in_progress: "Driving to the destination",
     }
+    const stepIndex = RIDE_STEPS.indexOf(ride.status as (typeof RIDE_STEPS)[number])
     return (
-      <div className="h-screen w-screen relative overflow-hidden bg-gray-100">
+      <div className="relative h-screen w-screen overflow-hidden bg-midnight">
         <RideMap
           pickup={ride.pickup.coordinates}
           destination={toPickup ? null : ride.destination.coordinates}
@@ -361,53 +366,73 @@ export default function DriverDashboardPage() {
           className="absolute inset-0"
         />
 
-        <div className="absolute top-4 left-4 right-4 z-10 flex items-center justify-between">
-          <Badge className="bg-emerald-600 text-white hover:bg-emerald-600 shadow-md px-3 py-1.5">
+        <div className="absolute left-4 right-4 top-4 z-10 flex items-center justify-between">
+          <div className="rounded-full bg-midnight/90 px-4 py-2 text-sm font-semibold text-white shadow-lg backdrop-blur">
             {phaseCopy[ride.status] ?? ride.status}
-          </Badge>
+          </div>
           {!selfPos && (
-            <Badge className="bg-white text-gray-600 hover:bg-white shadow-md">Getting GPS…</Badge>
+            <Badge className="bg-white text-ink shadow-md hover:bg-white">Getting GPS…</Badge>
           )}
         </div>
 
-        <div className="absolute bottom-4 left-0 right-0 z-10 px-4 md:max-w-md md:left-4 md:right-auto md:w-96">
-          <Card className="shadow-2xl border-0">
-            <CardContent className="p-4 space-y-3">
+        <div className="absolute bottom-4 left-0 right-0 z-10 px-4 md:left-4 md:right-auto md:w-[26rem] md:max-w-md">
+          <div className="overflow-hidden rounded-3xl bg-white shadow-2xl">
+            {/* progress stepper */}
+            <div className="flex gap-1.5 px-5 pt-4">
+              {RIDE_STEPS.map((s, i) => (
+                <span
+                  key={s}
+                  className={`h-1.5 flex-1 rounded-full ${i <= stepIndex ? "bg-crimson" : "bg-paper-2"}`}
+                />
+              ))}
+            </div>
+            <div className="space-y-3 p-5">
               {ride.rider && (
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-semibold">
-                      {ride.rider.firstName} {ride.rider.lastName}
-                    </p>
-                    <p className="text-sm text-gray-500">Rider</p>
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-crimson/10 font-display text-sm font-bold text-crimson">
+                      {ride.rider.firstName[0]}
+                      {ride.rider.lastName[0]}
+                    </span>
+                    <div>
+                      <p className="font-semibold text-ink">
+                        {ride.rider.firstName} {ride.rider.lastName}
+                      </p>
+                      <p className="text-xs text-muted-foreground">Rider</p>
+                    </div>
                   </div>
                   <a href={`tel:${ride.rider.phone}`}>
-                    <Button size="sm" variant="outline">
-                      <Phone className="w-4 h-4" />
+                    <Button size="sm" variant="outline" className="border-border">
+                      <Phone className="h-4 w-4" />
                     </Button>
                   </a>
                 </div>
               )}
 
-              <div className="bg-gray-50 rounded-lg p-3">
-                <p className="text-xs text-gray-500 mb-0.5">{toPickup ? "Pickup" : "Destination"}</p>
-                <p className="font-medium flex items-start">
+              <div className="rounded-xl bg-paper p-3">
+                <p className="mb-0.5 text-[11px] uppercase tracking-widest text-muted-foreground">
+                  {toPickup ? "Pickup" : "Destination"}
+                </p>
+                <p className="flex items-start font-medium text-ink">
                   {toPickup ? (
-                    <MapPin className="w-4 h-4 mr-2 mt-0.5 text-emerald-600 shrink-0" />
+                    <MapPin className="mr-2 mt-0.5 h-4 w-4 shrink-0 text-crimson" />
                   ) : (
-                    <Navigation className="w-4 h-4 mr-2 mt-0.5 text-red-500 shrink-0" />
+                    <Navigation className="mr-2 mt-0.5 h-4 w-4 shrink-0 text-midnight" />
                   )}
                   {target.address}
                 </p>
               </div>
 
-              <p className="text-sm text-gray-600">
-                Fare: <b>{ride.currency} {ride.estimatedFare}</b> · collect in cash
-              </p>
+              <div className="flex items-center justify-between rounded-xl bg-midnight px-4 py-2.5">
+                <span className="text-xs text-white/70">Collect in cash</span>
+                <span className="tnum text-lg font-bold text-white">
+                  <span className="text-marigold">रु</span> {ride.estimatedFare}
+                </span>
+              </div>
 
               {NEXT_ACTION[ride.status] && (
                 <Button
-                  className="w-full h-12 bg-emerald-600 hover:bg-emerald-700"
+                  className="h-12 w-full bg-crimson text-base hover:bg-crimson-ink"
                   disabled={acting}
                   onClick={advance}
                 >
@@ -417,152 +442,171 @@ export default function DriverDashboardPage() {
               {["accepted", "arrived"].includes(ride.status) && (
                 <Button
                   variant="outline"
-                  className="w-full text-red-600 border-red-200"
+                  className="w-full border-destructive/30 text-destructive hover:bg-destructive/5"
                   onClick={cancelActiveRide}
                 >
                   Cancel ride
                 </Button>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b sticky top-0 z-10">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-9 h-9 bg-emerald-600 rounded-lg flex items-center justify-center">
-              <Image src="/ridexlogo.png" alt="RideX" width={22} height={22} />
-            </div>
-            <div>
-              <p className="font-bold text-gray-900 leading-tight">Driver</p>
-              <p className="text-xs text-gray-500 flex items-center">
-                <Star className="w-3 h-3 text-yellow-500 mr-0.5" />
-                {profile.ratingAvg ?? "New"} ({profile.ratingCount})
-              </p>
-            </div>
+    <div className="min-h-screen bg-paper">
+      <header className="sticky top-0 z-10 border-b border-border bg-paper/85 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-4xl items-center justify-between px-4 sm:px-6">
+          <div className="flex items-center gap-3">
+            <Wordmark tone="dark" href="/driver-dashboard" />
+            <span className="hidden items-center gap-1 rounded-full bg-paper-2 px-2.5 py-1 text-xs font-medium text-ink sm:inline-flex">
+              <Star className="h-3 w-3 text-marigold" />
+              <span className="tnum">{profile.ratingAvg ?? "New"}</span>
+              <span className="text-muted-foreground">({profile.ratingCount})</span>
+            </span>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={toggleOnline}
               disabled={ride !== null}
-              className={`relative inline-flex h-8 w-24 items-center rounded-full transition font-medium text-sm ${
-                online ? "bg-emerald-600 text-white" : "bg-gray-200 text-gray-600"
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                online ? "bg-crimson text-white" : "bg-paper-2 text-muted-foreground"
               } ${ride ? "opacity-60" : ""}`}
             >
-              <span className="w-full text-center">{online ? "Online" : "Offline"}</span>
+              <Power className="h-4 w-4" />
+              {online ? "Online" : "Offline"}
             </button>
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="w-4 h-4" />
+            <Button variant="outline" size="sm" className="border-border" onClick={handleLogout}>
+              <LogOut className="h-4 w-4" />
             </Button>
           </div>
         </div>
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
-        {/* Earnings strip */}
-        <Card className="bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 text-white border-0">
-          <CardContent className="p-5 flex items-center justify-between">
+      <main className="mx-auto max-w-4xl space-y-6 px-4 py-8 sm:px-6">
+        {/* Earnings meter */}
+        <div className="relative overflow-hidden rounded-3xl bg-midnight bg-contours p-6 text-white">
+          <div className="relative z-10 flex items-center justify-between">
             <div>
-              <p className="text-emerald-100 text-sm">Today&apos;s earnings</p>
-              <p className="text-3xl font-bold">NPR {earnings?.total?.toFixed(0) ?? 0}</p>
+              <p className="text-[11px] uppercase tracking-widest text-white/60">Today&apos;s earnings</p>
+              <p className="tnum mt-1 text-4xl font-bold">
+                <span className="text-lg text-marigold">रु</span> {earnings?.total?.toFixed(0) ?? 0}
+              </p>
             </div>
             <div className="text-right">
-              <p className="text-emerald-100 text-sm">Rides</p>
-              <p className="text-3xl font-bold">{earnings?.rides ?? 0}</p>
+              <p className="text-[11px] uppercase tracking-widest text-white/60">Rides</p>
+              <p className="tnum mt-1 text-4xl font-bold">{earnings?.rides ?? 0}</p>
             </div>
-            <Banknote className="w-10 h-10 text-emerald-200" />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Incoming offers */}
         {offers.map((offer) => {
-          const remaining = Math.max(0, offer.expiresInS - (Math.max(nowMs, offer.receivedAt) - offer.receivedAt) / 1000)
+          const remaining = Math.max(
+            0,
+            offer.expiresInS - (Math.max(nowMs, offer.receivedAt) - offer.receivedAt) / 1000,
+          )
+          const pct = Math.max(0, Math.min(100, (remaining / offer.expiresInS) * 100))
+          const Icon = RIDE_ICON[offer.rideType] ?? Car
           return (
-            <Card key={offer.rideId} className="border-2 border-emerald-500 shadow-lg animate-pulse-slow">
-              <CardHeader className="pb-2 flex flex-row items-center justify-between">
-                <CardTitle className="text-base flex items-center">
-                  <Car className="w-5 h-5 mr-2 text-emerald-600" />
-                  New ride request · {offer.rideType}
-                </CardTitle>
-                <Badge className="bg-emerald-100 text-emerald-700">{Math.ceil(remaining)}s</Badge>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="text-sm space-y-1">
-                  <p className="flex items-start">
-                    <MapPin className="w-4 h-4 mr-2 mt-0.5 text-emerald-600 shrink-0" />
-                    {offer.pickup.address}
-                    <span className="text-gray-400 ml-1">
-                      ({(offer.pickupDistanceM / 1000).toFixed(1)} km away)
-                    </span>
-                  </p>
-                  <p className="flex items-start">
-                    <Navigation className="w-4 h-4 mr-2 mt-0.5 text-red-500 shrink-0" />
-                    {offer.destination.address}
-                  </p>
+            <div
+              key={offer.rideId}
+              className="animate-pulse-slow overflow-hidden rounded-3xl border border-crimson/30 bg-white shadow-xl"
+            >
+              <div className="flex items-center justify-between bg-crimson px-5 py-3 text-white">
+                <span className="flex items-center gap-2 font-display font-bold capitalize">
+                  <Icon className="h-5 w-5" />
+                  New {offer.rideType} request
+                </span>
+                <span className="tnum rounded-full bg-white/20 px-2.5 py-0.5 text-sm font-bold">
+                  {Math.ceil(remaining)}s
+                </span>
+              </div>
+              <div className="h-1 bg-crimson/15">
+                <div className="h-full bg-crimson transition-[width] duration-500 ease-linear" style={{ width: `${pct}%` }} />
+              </div>
+              <div className="space-y-4 p-5">
+                <div className="relative pl-6">
+                  <span className="absolute left-[6px] top-2 h-2.5 w-2.5 rounded-full bg-crimson ring-4 ring-crimson/15" />
+                  <span className="absolute bottom-3 left-[10px] top-5 w-px border-l-2 border-dashed border-ink/20" />
+                  <span className="absolute bottom-1 left-[6px] h-2.5 w-2.5 rounded-sm bg-midnight ring-4 ring-midnight/10" />
+                  <div className="pb-3">
+                    <p className="text-sm font-semibold text-ink">{offer.pickup.address}</p>
+                    <p className="tnum text-xs text-muted-foreground">
+                      {(offer.pickupDistanceM / 1000).toFixed(1)} km away
+                    </p>
+                  </div>
+                  <p className="text-sm font-semibold text-ink">{offer.destination.address}</p>
                 </div>
-                <p className="font-bold text-lg text-gray-900">
-                  {offer.currency} {offer.estimatedFare}
-                  <span className="text-sm text-gray-500 font-normal"> · cash</span>
-                </p>
+                <div className="flex items-center justify-between border-t border-dashed border-border pt-3">
+                  <span className="tnum text-2xl font-bold text-ink">
+                    <span className="text-base text-muted-foreground">रु</span> {offer.estimatedFare}
+                  </span>
+                  <span className="text-xs text-muted-foreground">cash</span>
+                </div>
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
-                    className="flex-1 text-red-600 border-red-200"
+                    className="flex-1 border-border text-muted-foreground"
                     onClick={() => respond(offer, "decline")}
                   >
-                    <X className="w-4 h-4 mr-1" /> Decline
+                    <X className="mr-1 h-4 w-4" /> Decline
                   </Button>
-                  <Button
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700"
-                    onClick={() => respond(offer, "accept")}
-                  >
-                    <CheckCircle className="w-4 h-4 mr-1" /> Accept
+                  <Button className="flex-1 bg-crimson hover:bg-crimson-ink" onClick={() => respond(offer, "accept")}>
+                    <CheckCircle className="mr-1 h-4 w-4" /> Accept
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           )
         })}
 
         {/* Idle state */}
         {!ride && offers.length === 0 && (
-          <Card className="border-dashed">
-            <CardContent className="p-8 text-center text-gray-500">
+          <div className="rounded-3xl border border-dashed border-border bg-card p-10 text-center">
+            <span
+              className={`mx-auto flex h-14 w-14 items-center justify-center rounded-2xl ${
+                online ? "bg-jade/12 text-jade" : "bg-paper-2 text-muted-foreground"
+              }`}
+            >
+              <Navigation className="h-7 w-7" />
+            </span>
+            <p className="mt-4 font-display text-lg font-bold text-ink">
+              {online ? "You're online" : "You're offline"}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
               {online
-                ? "You're online. Ride offers will appear here."
-                : "Go online to start receiving ride offers."}
-            </CardContent>
-          </Card>
+                ? "Ride offers will appear here the moment one comes in."
+                : "Go online to start receiving ride offers across the valley."}
+            </p>
+          </div>
         )}
 
         {/* Recent rides */}
         {history.length > 0 && (
-          <Card className="border-0 shadow-sm">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-base">Recent rides</CardTitle>
-            </CardHeader>
-            <CardContent className="divide-y">
+          <div className="overflow-hidden rounded-2xl border border-border bg-card">
+            <div className="border-b border-border px-5 py-3">
+              <h2 className="font-display text-base font-bold text-ink">Recent rides</h2>
+            </div>
+            <div className="divide-y divide-border">
               {history.map((h) => (
-                <div key={h.id} className="py-2.5 flex items-center justify-between text-sm">
+                <div key={h.id} className="flex items-center justify-between px-5 py-3 text-sm">
                   <div className="min-w-0">
-                    <p className="truncate text-gray-900">
+                    <p className="truncate text-ink">
                       {h.pickup.address} → {h.destination.address}
                     </p>
-                    <p className="text-xs text-gray-500 capitalize">{h.status.replace("_", " ")}</p>
+                    <p className="text-xs capitalize text-muted-foreground">{h.status.replace("_", " ")}</p>
                   </div>
-                  <p className="font-semibold whitespace-nowrap ml-3">
-                    {h.finalFare != null ? `${h.currency} ${h.finalFare}` : "—"}
+                  <p className="tnum ml-3 whitespace-nowrap font-semibold text-ink">
+                    {h.finalFare != null ? `रु ${h.finalFare}` : "—"}
                   </p>
                 </div>
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         )}
       </main>
     </div>
